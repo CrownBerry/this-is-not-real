@@ -1,75 +1,82 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public partial class CharController : MonoBehaviour {
 
 	public float jumpSpeed = 36.0f; //14.0f;
-	float speed = 6.0f;
-	float maxSpeed = 8.0f;
+    private float speed = 6.0f;
+    private float maxSpeed = 8.0f;
 
-	float xMov;
-	float myVelocity;
+    private float xMov;
+    private float myVelocity;
 
-	float distGround;
+    private float distGround;
 
-	CapsuleCollider capscol;
+    private CapsuleCollider capscol;
 	public GameObject witchModel;
 	public GameObject vrModel;
 	public GameObject cameraObject;
-	GameObject grabbedObj;
+    private GameObject grabbedObj;
 
-	Rigidbody rb;
+    private Rigidbody rb;
 
-	int Iter;
+    private int iter;
 
 	public bool isInside;
 	public bool onPlatform;
 
-	bool canMove;
+	private bool canMove;
 
-	Vector3 tp;
-	bool isRight;
+    private Vector3 tp;
+    private bool isRight;
 	public bool grabFlag;
 
 	public float vel;
 
 
 	void Awake () {
-		int levelId = SceneManager.GetActiveScene ().buildIndex;
-		if (levelId == 2)
-			jumpSpeed = 10.0f;
-		else
-			jumpSpeed = 16.0f;
+		var levelId = SceneManager.GetActiveScene ().buildIndex;
+		jumpSpeed = levelId == 2 ? 10.0f : 16.0f;
 		capscol = GetComponent<CapsuleCollider> ();
 		distGround = capscol.bounds.extents.y;
 		isRight = true;
 		rb = GetComponent<Rigidbody> ();
 		isInside = false;
-		onPlatform = false; 
+		onPlatform = false;
+		canMove = true;
 	}
 
 	void OnEnable() {
 		EventManager.StartListening ("OnPlayerSwitch", Switch);
 		EventManager.StartListening ("OnChangeSpeed", ChangeSpeed);
 		EventManager.StartListening ("OnChangeJump", ChangeJump);
+        EventManager.StartListening("OnGirlsVisible", SetGirlsVisiible);
+        EventManager.StartListening("OnModelTransfer", TransferModel);
+		EventManager.StartListening("OnPlayerMoveSwitch", SetPlayerMoveAbility);
 	}
 
 	void OnDisable() {
 		EventManager.StopListening ("OnPlayerSwitch", Switch);
 		EventManager.StopListening ("OnChangeSpeed", ChangeSpeed);
 		EventManager.StopListening ("OnChangeJump", ChangeJump);
-		
-	}
+        EventManager.StopListening("OnGirlsVisible", SetGirlsVisiible);
+        EventManager.StopListening("OnModelTransfer", TransferModel);
+		EventManager.StopListening("OnPlayerMoveSwitch", SetPlayerMoveAbility);
+
+    }
 
 	void OnDestroy() {
 		EventManager.StopListening ("OnPlayerSwitch", Switch);
 		EventManager.StopListening ("OnChangeSpeed", ChangeSpeed);
 		EventManager.StopListening ("OnChangeJump", ChangeJump);
-	}
+        EventManager.StopListening("OnGirlsVisible", SetGirlsVisiible);
+        EventManager.StopListening("OnModelTransfer", TransferModel);
+		EventManager.StopListening("OnPlayerMoveSwitch", SetPlayerMoveAbility);
+    }
 
-	void Update () {
+	void Update ()
+	{
+		rb.isKinematic = !canMove;
 		myVelocity = rb.velocity.x;
 		xMov = Input.GetAxisRaw ("Horizontal");
 
@@ -90,24 +97,24 @@ public partial class CharController : MonoBehaviour {
 
 	void FixedUpdate() {
 		RealGravity (!onPlatform);
-		Move (xMov);
+		if (canMove)
+			Move (xMov);
 	}
 
-	void ChangeSpeed(params object[] list) {
+    private void ChangeSpeed(params object[] list) {
 		float newSpeed = (float)list [0];
 		float newMaxSpeed = (float)list [1];
 		speed = newSpeed;
 		maxSpeed = newMaxSpeed;
 	}
 
-	void ChangeJump(params object[] list) {
+    private void ChangeJump(params object[] list) {
 		float newJump = (float)list [0];
 		jumpSpeed = newJump;
 	}
 
-	void GrabBox(GameObject box) {
-		FixedJoint myJoint;
-		myJoint = box.AddComponent<FixedJoint>();
+    private void GrabBox(GameObject box) {
+	    var myJoint = box.AddComponent<FixedJoint>();
 		myJoint.connectedBody = rb;
 		myJoint.enableCollision = true;
 		box.GetComponent<Rigidbody> ().useGravity = false;
@@ -116,10 +123,9 @@ public partial class CharController : MonoBehaviour {
 		grabbedObj = box;
 	}
 
-	void DropBox(GameObject box, bool forced) {
+    private void DropBox(GameObject box, bool forced) {
 		if (Input.GetButtonDown ("Use") || forced) {
-			FixedJoint myJoint;
-			myJoint = box.GetComponent<FixedJoint> ();
+		    var myJoint = box.GetComponent<FixedJoint> ();
 			myJoint.connectedBody = null;
 			Destroy (myJoint);
 			box.GetComponent<Rigidbody> ().useGravity = true;
@@ -129,40 +135,57 @@ public partial class CharController : MonoBehaviour {
 		}
 	}
 
-	void Switch(params object[] list) {
-		bool forced = (bool)list [0];
+    private void Switch(params object[] list) {
+		var forced = (bool)list [0];
+        var directionDown = (bool)list[1];
+        var playerPos = transform.position;
 		if (grabFlag)
 			DropBox (grabbedObj, true);
 		float xDev;
-		Vector3 point;
-		if (isInside && forced) {
-			point = FindPoint ();
-			xDev = point.x - transform.position.x;
+        if (isInside && forced)
+		{
+		    var point = FindPoint ();
+		    xDev = point.x - transform.position.x;
 		}
 		else
 			xDev = 0f;
 		if (!isInside || forced) {
-			EventManager.TriggerEvent ("OnCameraCanMove");
-			if (GameManager.instance.inLab)
+			//EventManager.TriggerEvent ("OnCameraCanMove");
+			if (directionDown)
             {
-                EventManager.TriggerEvent("OnCameraSwitch", 0f);
-                EventManager.TriggerEvent("OnViewportGoal", 0f);
-                tp = new Vector3 (transform.position.x + xDev, transform.position.y - 100,0f);
-				vrModel.SetActive (false);
-				witchModel.SetActive (true);
+                //EventManager.TriggerEvent("OnCameraSwitch", 0f);
+                //EventManager.TriggerEvent("OnViewportGoal", 0f);
+                tp = new Vector3 (playerPos.x + xDev, playerPos.y - 100,0f);
+				//vrModel.SetActive (false);
+				//witchModel.SetActive (true);
 			} else
             {
-                EventManager.TriggerEvent("OnCameraSwitch", 1f);
-                EventManager.TriggerEvent("OnViewportGoal", 1f);
-                tp = new Vector3 (transform.position.x + xDev, transform.position.y + 100,0f);
-				vrModel.SetActive (true);
-				witchModel.SetActive (false);
+                //EventManager.TriggerEvent("OnCameraSwitch", 1f);
+                //EventManager.TriggerEvent("OnViewportGoal", 1f);
+                tp = new Vector3 (playerPos.x + xDev, playerPos.y + 100,0f);
+				//vrModel.SetActive (true);
+				//witchModel.SetActive (false);
 			}
-			GameManager.instance.inLab = !GameManager.instance.inLab;
+			//GameManager.instance.inLab = !GameManager.instance.inLab;
 			transform.position = tp;
-			EventManager.TriggerEvent ("OnCameraCanMove");
+			//EventManager.TriggerEvent ("OnCameraCanMove");
 		}
 	}
+
+    private void SetGirlsVisiible(params object[] list) {
+        var witch = (bool)list[0];
+        var vr = (bool)list[1];
+        witchModel.SetActive(witch);
+        vrModel.SetActive(vr);
+    }
+
+    private void TransferModel(params object[] list)
+    {
+	    var witchShift = (float) list[0];
+	    var vrShift = (float) list[1];
+        witchModel.transform.localPosition = new Vector3(0f, witchShift, 0f);
+        vrModel.transform.localPosition = new Vector3(0f, vrShift, 0f);
+    }
 
 	void OnTriggerEnter(Collider col) {
 		if (col.gameObject.CompareTag ("item"))
@@ -171,5 +194,11 @@ public partial class CharController : MonoBehaviour {
 
 	void Restart() {
 		
+	}
+
+	private void SetPlayerMoveAbility(params object[] list)
+	{
+		var newCanMove = (bool) list[0];
+		canMove = newCanMove;
 	}
 }

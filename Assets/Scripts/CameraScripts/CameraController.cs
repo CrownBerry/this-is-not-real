@@ -30,19 +30,9 @@ public class CameraController : MonoBehaviour {
 	void Update () {
         //COSTYL
         if (GameManager.instance.inLab )
-        {
-            if (camName == "second")
-                vertShift = 0;
-            else
-                vertShift = -100;
-        }else 
-        {
-            if (camName == "second")
-                vertShift = 100;
-            else
-                vertShift = 0;
-        }
-
+	        vertShift = camName == "second" ? 0 : -100;
+        else
+	        vertShift = camName == "second" ? 100 : 0;
         //END COSTYL
 
 		if (Input.GetAxis ("Horizontal") > 0 && !right) {

@@ -3,78 +3,63 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public partial class CharController : MonoBehaviour {
-
-	void CheckBox() {
+    private void CheckBox() {
 		RaycastHit hit;
 		bool hitted;
 		if (isRight)
 			hitted = Physics.Linecast (new Vector3 (transform.position.x, transform.position.y + 1.5f, transform.position.z), new Vector3 (transform.position.x + 1.0f, transform.position.y + 1.5f, transform.position.z), out hit);
 		else
-			hitted = Physics.Linecast (new Vector3 (transform.position.x, transform.position.y + 1.5f, transform.position.z), new Vector3 (transform.position.x - 1.0f, transform.position.y + 1.5f, transform.position.z), out hit);	
-		if (hitted) {
-			if (hit.collider.CompareTag ("Box") && Input.GetButtonDown("Use"))
-				GrabBox (hit.collider.gameObject);
-		}
+			hitted = Physics.Linecast (new Vector3 (transform.position.x, transform.position.y + 1.5f, transform.position.z), new Vector3 (transform.position.x - 1.0f, transform.position.y + 1.5f, transform.position.z), out hit);
+	    if (!hitted) return;
+	    if (hit.collider.CompareTag ("Box") && Input.GetButtonDown("Use"))
+	        GrabBox (hit.collider.gameObject);
 	}
 
-	void CheckPoint() {
-		Vector3 Start;
-		Vector3 Goal;
-		Vector3 Point;
-		Vector3 Direction;
-		RaycastHit hit;
+    private void CheckPoint() {
+	    RaycastHit hit;
 
-		Start = transform.position;
-		Start.y += 0.1f;
-		Goal = Start;
+		var start = transform.position;
+		start.y += 0.1f;
+		var goal = start;
 		if (GameManager.instance.inLab)
-			Goal.y -= 100.0f;
+			goal.y -= 100.0f;
 		else
-			Goal.y += 100.0f;
-		Direction = Goal - Start;
-		Direction.Normalize ();
-		Point = Start;
-		Iter = 0;
+			goal.y += 100.0f;
+		var direction = goal - start;
+		direction.Normalize ();
+		var point = start;
+		iter = 0;
 
-		while (Point != Goal) {
-			if (Physics.Linecast (Point, Goal, out hit)) {
-				Iter++;
-				Point = hit.point + (Direction / 100.0f);
+		while (point != goal) {
+			if (Physics.Linecast (point, goal, out hit)) {
+				iter++;
+				point = hit.point + (direction / 100.0f);
 			} else
-				Point = Goal;
+				point = goal;
 		}
-		while (Point != Start) {
-			if (Physics.Linecast (Point, Start, out hit)) {
-				Iter++;
-				Point = hit.point + (-Direction / 100.0f);
+		while (point != start) {
+			if (Physics.Linecast (point, start, out hit)) {
+				iter++;
+				point = hit.point + (-direction / 100.0f);
 			} else
-				Point = Start;
+				point = start;
 		}
-		if (Iter % 2 == 0)
-			isInside = true;
-		else
-			isInside = false;
+		isInside = iter % 2 == 0;
 	}
 
 	public Vector3 FindPoint() {
-		Vector3 point; 
-		Vector3 goal;
-		Vector3 result;
-		float shift;
-		float dir;
-		bool stop;
-		RaycastHit hit;
-
-		shift = 1.0f;
-		dir = 1;
-		stop = false;
-		result = new Vector3 (0, 0, 0);
-		point = new Vector3 (transform.position.x,transform.position.y - 100.0f, transform.position.z);
-		goal = point;
+	    var shift = 1.0f;
+		float dir = 1;
+		var stop = false;
+		var result = new Vector3 (0, 0, 0);
+		var point = new Vector3 (transform.position.x,transform.position.y - 100.0f, transform.position.z);
+		var goal = point;
 		goal.x += shift;
 
-		while (!stop) {
-			if (Physics.Linecast (point, goal, out hit)) {
+		while (!stop)
+		{
+		    RaycastHit hit;
+		    if (Physics.Linecast (point, goal, out hit)) {
 				result = hit.point;
 				stop = true;
 			} else {

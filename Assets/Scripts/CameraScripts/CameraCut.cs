@@ -34,25 +34,32 @@ public class CameraCut : MonoBehaviour {
             if (goal - myRect.height > 0.01)
                 myRect.height += Time.deltaTime;
             else
+            {
                 myRect.height = 1;
+                print(goal-myRect.height>0.01);
+                EventManager.TriggerEvent("OnFinishLineSliding");
+            }
         }
         else if (myRect.height > goal)
         {
             if (myRect.height - goal > 0.01)
                 myRect.height -= Time.deltaTime;
             else
+            {
                 myRect.height = 0;
+                print(myRect.height-goal>0.01);
+                EventManager.TriggerEvent("OnFinishLineSliding");
+            }
         }
         if (myRect.height != 0)
         {
-            print(myRect.height);
             SetScissorRect(cam, myRect);
         }
     }
 
     void SetNewGoal(params object[] list)
     {
-        float newGoal = (float)list [0];
+        var newGoal = (float)list [0];
         goal = newGoal;
         Debug.Log("New camera goal is " + newGoal.ToString());
     }
