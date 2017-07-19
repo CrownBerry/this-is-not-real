@@ -23,11 +23,10 @@ public class LightManager : MonoBehaviour {
 		EventManager.StopListening ("OnLightSwitch",SwitchLighting);
 	}
 	
-	void SwitchLighting (params object[] list) {
-		if (GameManager.instance.inLab)
-			mainLight.gameObject.SetActive (false);
-		else
-			mainLight.gameObject.SetActive (true);
+	void SwitchLighting (params object[] list)
+	{
+		var where = (bool) list[0];
+		mainLight.gameObject.SetActive(where);
 	}
 
 }
