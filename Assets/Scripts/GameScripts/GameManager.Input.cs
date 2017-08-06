@@ -42,7 +42,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
 	    try
@@ -51,7 +51,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
         var lineGoal = localInLab ? 0f : 1f;
@@ -61,7 +61,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
 	    try
@@ -70,7 +70,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
 	    try
@@ -79,7 +79,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
 	    try
@@ -88,7 +88,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
 	    try
@@ -97,7 +97,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
 	    try
@@ -110,7 +110,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
 	    while (!isFinishedTransfer)
@@ -126,7 +126,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
 	    try
@@ -136,7 +136,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
 	    try
@@ -145,7 +145,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
 	    try
@@ -154,7 +154,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
 	    try
@@ -163,7 +163,7 @@ public partial class GameManager : MonoBehaviour
 	    }
 	    catch (Exception e)
 	    {
-		    Console.WriteLine(e);
+		    print(e);
 		    throw;
 	    }
     }
