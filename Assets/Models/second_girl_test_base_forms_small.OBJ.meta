@@ -1,17 +1,17 @@
 fileFormatVersion: 2
-guid: afb4bb5ca31e85642b741a4917c6eec3
-timeCreated: 1500724365
+guid: dff9aed5778c4774bbbadd8c2ed9c55e
+timeCreated: 1502547931
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: second_girl_test_base_forms:Group7012_group1_group2
-    100002: //RootNode
-    400000: second_girl_test_base_forms:Group7012_group1_group2
-    400002: //RootNode
-    2300000: second_girl_test_base_forms:Group7012_group1_group2
-    3300000: second_girl_test_base_forms:Group7012_group1_group2
-    4300000: second_girl_test_base_forms:Group7012_group1_group2
+    100000: //RootNode
+    100002: second_girl_test_base_forms_small:polySurface1_group1
+    400000: //RootNode
+    400002: second_girl_test_base_forms_small:polySurface1_group1
+    2300000: second_girl_test_base_forms_small:polySurface1_group1
+    3300000: second_girl_test_base_forms_small:polySurface1_group1
+    4300000: second_girl_test_base_forms_small:polySurface1_group1
   materials:
     importMaterials: 1
     materialName: 0
