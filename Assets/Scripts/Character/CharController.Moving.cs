@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 
 public partial class CharController: MonoBehaviour {
 
 	void Move(float direction) {
-		if (myVelocity != 0 && direction == 0) {
+		if (Math.Abs(myVelocity) > float.Epsilon && Math.Abs(direction) < float.Epsilon) {
 			if (myVelocity > 0) {
 				if (myVelocity < 1)
 					rb.velocity = new Vector3(0f,rb.velocity.y,0f);

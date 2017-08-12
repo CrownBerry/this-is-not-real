@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using ItsHarshdeep.LoadingScene.Controller;
+using UnityEngine.EventSystems;
 
 public partial class GameManager : MonoBehaviour {
 
@@ -14,8 +15,9 @@ public partial class GameManager : MonoBehaviour {
 	public bool canSwitch;
 	public bool inLab;
 	public bool keyPuzzle2;
+	private bool isFinishedTransfer;
 
-	void Awake () {
+    void Awake () {
         if (instance == null)
         {
             DontDestroyOnLoad(gameObject);
@@ -26,58 +28,65 @@ public partial class GameManager : MonoBehaviour {
 		stamina = 100;
 		stress = 0;
 		isPause = false;
-		int levelId = SceneManager.GetActiveScene ().buildIndex;
+		var levelId = SceneManager.GetActiveScene ().buildIndex;
 		if (levelId == 2)
 			canSwitch = false;
 		else
 			canSwitch = true;
 		inLab = false;
 		keyPuzzle2 = false;
-	}
+	    isFinishedTransfer = false;
+    }
 
 	void OnEnable() {
 		EventManager.StartListening ("OnLevelFinish",FinishLevel);
+        EventManager.StartListening("OnFinishLineSliding", SetFinishLineSLiding);
 	}
 
 	void OnDisable() {
 		EventManager.StopListening ("OnLevelFinish",FinishLevel);
-	}
+	    EventManager.StopListening("OnFinishLineSliding", SetFinishLineSLiding);
+    }
 
 	void OnDestroy() {
-		EventManager.StopListening ("OnLevelFinish",FinishLevel);		
-	}
+		EventManager.StopListening ("OnLevelFinish",FinishLevel);
+	    EventManager.StopListening("OnFinishLineSliding", SetFinishLineSLiding);
+    }
 
 	void Update () {
 		InputChecking ();
         if (UIManager.instance) { UIManager.instance.staminaSlider.value = stamina; }
+		staminaManage();
+        if (UIManager.instance) { UIManager.instance.pausePanel.SetActive(isPause); }
+		Time.timeScale = isPause ? 0.0f : 1.0f;
+	}
 
-		//STRESS//
+	void FinishLevel(params object[] list) {
+		var levelIndex = (string)list [0];
+		PlayerPrefs.SetString ("lastLevel", levelIndex);
+		SceneController.LoadLevel(levelIndex,2f);
+	}
+
+    void SetFinishLineSLiding(params object[] list)
+    {
+        isFinishedTransfer = true;
+	    print("Set isFini bla bla to TRUE");
+    }
+
+	private void staminaManage()
+	{
 		if (inLab && stress < 255)
 			stress += 35f * Time.deltaTime;
 		else if (!inLab && stress > 0) {
 			stress -= 60f * Time.deltaTime;
 		}
-
 		if (stress > 243 && inLab)
-			EventManager.TriggerEvent ("OnPlayerSwitch", true);
-			EventManager.TriggerEvent ("OnLightSwitch");
-
+		{
+			var transgressionRoutine = Transgression(true);
+			StartCoroutine(transgressionRoutine);
+			inLab = !inLab;
+		}
 		if (stress < 0)
 			stress = 0;
-        //STRESS END//
-
-        if (UIManager.instance) { UIManager.instance.pausePanel.SetActive(isPause); }
-		if (isPause) {
-			Time.timeScale = 0.0f;
-		} else {
-			Time.timeScale = 1.0f;
-		}
-	}
-
-	void FinishLevel(params object[] list) {
-		string levelIndex = (string)list [0];
-		PlayerPrefs.SetString ("lastLevel", levelIndex);
-		//SceneManager.LoadScene (levelIndex);
-		SceneController.LoadLevel(levelIndex,2f);
 	}
 }
