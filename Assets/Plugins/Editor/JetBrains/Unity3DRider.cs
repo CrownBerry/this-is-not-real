@@ -7,6 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+
 using Application = UnityEngine.Application;
 using Debug = UnityEngine.Debug;
 using System.Collections.Generic;
@@ -233,6 +234,7 @@ namespace Plugins.Editor.JetBrains
         return "6";
 
       // Unity 5.5 supports C# 6, but only when targeting .NET 4.6. The enum doesn't exist pre Unity 5.5
+
       #if !UNITY_5_6_OR_NEWER
       if ((int)PlayerSettings.apiCompatibilityLevel >= 3)
       #else
@@ -450,6 +452,7 @@ namespace Plugins.Editor.JetBrains
     private static void InitializeEditorInstanceJson(string projectDirectory)
     {
       // Only manage EditorInstance.json for 4.x and 5.x - it's a native feature for 2017.x
+
 #if !UNITY_2017_1_OR_NEWER
       Log(LoggingLevel.Verbose, "Writing Library/EditorInstance.json");
 
@@ -658,6 +661,7 @@ namespace Plugins.Editor.JetBrains
       });
       return process;
     }
+
 
 #if !UNITY_2017_1_OR_NEWER
     // The default "Open C# Project" menu item will use the external script editor to load the .sln
@@ -1034,6 +1038,7 @@ return SystemInfo.operatingSystemFamily;
         ShellLink link = new ShellLink();
         ((IPersistFile) link).Load(filename, STGM_READ);
         // If I can get hold of the hwnd call resolve first. This handles moved and renamed files.  
+
         // ((IShellLinkW)link).Resolve(hwnd, 0) 
         StringBuilder sb = new StringBuilder(MAX_PATH);
         WIN32_FIND_DATAW data = new WIN32_FIND_DATAW();
