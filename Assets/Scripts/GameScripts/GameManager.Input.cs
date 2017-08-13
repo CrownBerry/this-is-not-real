@@ -36,29 +36,135 @@ public partial class GameManager : MonoBehaviour
     private IEnumerator Transgression(bool forced)
     {
 	    var localInLab = inLab;
-	    EventManager.TriggerEvent("OnPlayerMoveSwitch", false);
-        EventManager.TriggerEvent("OnCameraCanMove");
+	    try
+	    {
+		    EventManager.TriggerEvent("OnPlayerMoveSwitch", false);
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
+	    try
+	    {
+		    EventManager.TriggerEvent("OnCameraCanMove");
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
         var lineGoal = localInLab ? 0f : 1f;
-        EventManager.TriggerEvent("OnCameraSwitch", lineGoal);
-        EventManager.TriggerEvent("OnViewportGoal", lineGoal);
-	    EventManager.TriggerEvent("OnShadowSlide", localInLab);
-	    EventManager.TriggerEvent("OnPlayerSwitch", forced, localInLab);
-	    EventManager.TriggerEvent("OnGirlsVisible", true, true);
-	    if (localInLab)
-	    	EventManager.TriggerEvent("OnModelTransfer", 0f, 100f);
-	    else
-		    EventManager.TriggerEvent("OnModelTransfer", -100f, 0f);
-	    print("Step one transgression");
+	    try
+	    {
+		    EventManager.TriggerEvent("OnCameraSwitch", lineGoal);
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
+	    try
+	    {
+		    EventManager.TriggerEvent("OnViewportGoal", lineGoal);
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
+	    try
+	    {
+		    EventManager.TriggerEvent("OnShadowSlide", localInLab);
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
+	    try
+	    {
+		    EventManager.TriggerEvent("OnPlayerSwitch", forced, localInLab);
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
+	    try
+	    {
+		    EventManager.TriggerEvent("OnGirlsVisible", true, true);
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
+	    try
+	    {
+		    if (localInLab)
+			    EventManager.TriggerEvent("OnModelTransfer", 0f, 100f);
+		    else
+			    EventManager.TriggerEvent("OnModelTransfer", -100f, 0f);
+		    print("Step one transgression");
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
 	    while (!isFinishedTransfer)
 	    {
 		    yield return null;
 	    }
 	    print("Step two go");
 	    isFinishedTransfer = false;
-		EventManager.TriggerEvent("OnModelTransfer", 0f, 0f);
-	    EventManager.TriggerEvent("OnGirlsVisible", localInLab, !localInLab);
-        EventManager.TriggerEvent("OnCameraCanMove");
-	    EventManager.TriggerEvent("OnLightSwitch", localInLab);
-	    EventManager.TriggerEvent("OnPlayerMoveSwitch", true);
+	    try
+	    {
+		    EventManager.TriggerEvent("OnModelTransfer", 0f, 0f);
+
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
+	    try
+	    {
+		    EventManager.TriggerEvent("OnGirlsVisible", localInLab, !localInLab);
+
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
+	    try
+	    {
+		    EventManager.TriggerEvent("OnCameraCanMove");
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
+	    try
+	    {
+		    EventManager.TriggerEvent("OnLightSwitch", localInLab);
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
+	    try
+	    {
+		    EventManager.TriggerEvent("OnPlayerMoveSwitch", true);
+	    }
+	    catch (Exception e)
+	    {
+		    print(e);
+		    throw;
+	    }
     }
 }
