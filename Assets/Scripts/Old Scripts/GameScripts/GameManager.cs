@@ -28,8 +28,9 @@ public partial class GameManager : MonoBehaviour {
 		stamina = 100;
 		stress = 0;
 		isPause = false;
-		var levelId = SceneManager.GetActiveScene ().buildIndex;
-		canSwitch = levelId != 2;
+//		var levelId = SceneManager.GetActiveScene ().buildIndex;
+//		canSwitch = levelId != 2;
+	    canSwitch = true;
 		inLab = false;
 		keyPuzzle2 = false;
 	    isFinishedTransfer = false;

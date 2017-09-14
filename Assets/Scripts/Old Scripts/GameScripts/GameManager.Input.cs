@@ -8,7 +8,10 @@ public partial class GameManager : MonoBehaviour
 
 	void InputChecking() {
 		if (Input.GetButtonDown ("Teleport")) {
+			Debug.Log("Teleport button pressed");
+			Debug.Log(string.Format("canSwitch is: {0}; Stress is: {1}; inLab is: {2}", canSwitch, stress, inLab));
 			if (canSwitch && ((stress < 100 && !inLab) || inLab) ) {
+				Debug.Log("Transgression started!");
 				var transgressionRoutine = Transgression(false);
 				StartCoroutine(transgressionRoutine);
 				inLab = !inLab;
