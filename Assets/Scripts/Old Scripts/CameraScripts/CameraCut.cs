@@ -36,7 +36,7 @@ public class CameraCut : MonoBehaviour {
             else
             {
                 myRect.height = 1;
-                print(goal-myRect.height>0.01);
+                Debug.Log(goal-myRect.height>0.01);
                 EventManager.TriggerEvent("OnFinishLineSliding");
             }
         }
@@ -47,7 +47,7 @@ public class CameraCut : MonoBehaviour {
             else
             {
                 myRect.height = 0;
-                print(myRect.height-goal>0.01);
+                Debug.Log(myRect.height-goal>0.01);
                 EventManager.TriggerEvent("OnFinishLineSliding");
             }
         }

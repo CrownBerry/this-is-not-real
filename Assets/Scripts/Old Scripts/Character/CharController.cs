@@ -10,7 +10,8 @@ public partial class CharController : MonoBehaviour {
     private float xMov;
     private float myVelocity;
 
-    private float distGround;
+	public float distGround;
+	public bool canJump;
 
     private CapsuleCollider capscol;
 	public GameObject witchModel;
@@ -36,7 +37,7 @@ public partial class CharController : MonoBehaviour {
 
 	void Awake () {
 		var levelId = SceneManager.GetActiveScene ().buildIndex;
-		jumpSpeed = levelId == 2 ? 10.0f : 16.0f;
+		jumpSpeed = 13.0f;
 		capscol = GetComponent<CapsuleCollider> ();
 		distGround = capscol.bounds.extents.y;
 		isRight = true;
@@ -88,14 +89,22 @@ public partial class CharController : MonoBehaviour {
 		else
 			DropBox (grabbedObj, false);
 
-		if (Input.GetButtonDown ("Jump"))
-		if (Physics.Raycast(transform.position,-Vector3.up,distGround - 1.0f))
-			Jump ();
+		if (Input.GetButtonDown ("Jump")) {
+			Debug.Log ("Jump pressed");
+			if (canJump) {
+				Jump ();
+			}
+		}
 
 		vel = rb.velocity.x;
 	}
 
 	void FixedUpdate() {
+		if (Physics.Raycast (transform.position + new Vector3(0,0.1f,0), -Vector3.up, 0.2f)) {
+			canJump = true;
+		} else {
+			canJump = false;
+		}
 		RealGravity (!onPlatform);
 		if (canMove)
 			Move (xMov);
