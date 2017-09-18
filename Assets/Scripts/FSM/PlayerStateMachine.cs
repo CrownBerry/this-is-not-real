@@ -111,5 +111,37 @@ namespace System.FSM
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public void MoveCamera(Transform camera)
+        {
+            switch (_state)
+            {
+                case State.Disable:
+                    break;
+                default:
+                    var ownerPosition = _owner.transform.position;
+                    camera.position = Vector3.Lerp(camera.position,
+                        new Vector3(ownerPosition.x, ownerPosition.y + 3, -7), Time.deltaTime * 4.0f);
+                    break;
+            }
+        }
+
+        public void Transgression()
+        {
+            if (_owner.IsInside() || _owner.otherPlayer.IsInside()) return;
+
+            switch (_state)
+            {
+                case State.Disable:
+                    _state = State.Idle;
+                    _owner.CameraFollowMe();
+                    _owner.Turn(true);
+                    break;
+                default:
+                    _state = State.Disable;
+                    _owner.Turn(false);
+                    break;
+            }
+        }
     }
 }

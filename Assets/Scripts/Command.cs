@@ -39,6 +39,14 @@ public class JumpCommand : Command
     }
 }
 
+public class TransgressionCommand : Command
+{
+    public override void Execute(PlayerClass actor)
+    {
+        actor.state.Transgression();
+    }
+}
+
 public class DoNothingCommand : Command
 {
     public override void Execute(PlayerClass actor)

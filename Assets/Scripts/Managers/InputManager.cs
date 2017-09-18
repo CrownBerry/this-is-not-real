@@ -6,16 +6,17 @@ namespace System.Managers
 {
     public class InputManager : MonoBehaviour
     {
-        private Command jumpButton, moveLeft, moveRight, notMove, doNothing;
+        private Command jumpCommand, moveLeftCommand, moveRightCommand, notMoveCommand, transgressionCommand, doNothingCommand;
         protected List<PlayerClass> playerObjectsList = new List<PlayerClass>();
 
         private void Awake()
         {
-            jumpButton = new JumpCommand();
-            moveLeft = new MoveLeftCommand();
-            moveRight = new MoveRightCommand();
-            notMove = new NotMoveCommand();
-            doNothing = new DoNothingCommand();
+            jumpCommand = new JumpCommand();
+            moveLeftCommand = new MoveLeftCommand();
+            moveRightCommand = new MoveRightCommand();
+            notMoveCommand = new NotMoveCommand();
+            doNothingCommand = new DoNothingCommand();
+            transgressionCommand = new TransgressionCommand();
         }
 
         private void Start()
@@ -31,13 +32,15 @@ namespace System.Managers
         private void Update()
         {
             if (Input.GetButtonDown("Jump"))
-                playerObjectsList.ForEach(_ => jumpButton.Execute(_));
+                playerObjectsList.ForEach(_ => jumpCommand.Execute(_));
             if (Input.GetAxisRaw("Horizontal") > 0)
-                playerObjectsList.ForEach(_ => moveRight.Execute(_));
+                playerObjectsList.ForEach(_ => moveRightCommand.Execute(_));
             if (Input.GetAxisRaw("Horizontal") < 0)
-                playerObjectsList.ForEach(_ => moveLeft.Execute(_));
+                playerObjectsList.ForEach(_ => moveLeftCommand.Execute(_));
             if (Math.Abs(Input.GetAxisRaw("Horizontal")) < Mathf.Epsilon)
-                playerObjectsList.ForEach(_ => notMove.Execute(_));
+                playerObjectsList.ForEach(_ => notMoveCommand.Execute(_));
+            if (Input.GetButtonDown("Teleport"))
+                playerObjectsList.ForEach(_ => transgressionCommand.Execute(_));
         }
     }
 }

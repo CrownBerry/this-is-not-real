@@ -13,14 +13,20 @@ namespace System.Player
         private float movingSpeed;
         public PlayerClass otherPlayer;
 
+        private bool isInside = false;
+
         private Vector3 savedPosition;
 
+        private CapsuleCollider _collider;
         private Rigidbody rigidBody;
         public PlayerStateMachine.State startingState;
         public PlayerStateMachine state;
+        private Transform _camera;
 
         private void Awake()
         {
+            _collider = GetComponent<CapsuleCollider>();
+            _camera = GameObject.Find("Main Camera").transform;
             savedPosition = transform.position;
             lookRight = true;
             horizontalMoving = 0f;
@@ -50,11 +56,28 @@ namespace System.Player
                 otherPlayer.state.MoveDisabled(deltaPosition);
             }
             savedPosition = transform.position;
+
+            state.MoveCamera(_camera);
         }
 
         private void OnCollisionEnter(Collision other)
         {
             state.Landing();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            isInside = true;
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            isInside = false;
+        }
+
+        public bool IsInside()
+        {
+            return isInside;
         }
 
         #region Moving
@@ -126,7 +149,17 @@ namespace System.Player
             var oldPosition = transform.position;
             var newPosition = oldPosition + deltaPosition;
             transform.position = new Vector3(newPosition.x, newPosition.y, newPosition.z);
-            Debug.Log(string.Format("newPosition is {0}", newPosition));
+        }
+
+        public void CameraFollowMe()
+        {
+            _camera.position = new Vector3(transform.position.x, transform.position.y + 3, -7);
+        }
+
+        public void Turn(bool turnOn)
+        {
+            rigidBody.isKinematic = !turnOn;
+            _collider.isTrigger = !turnOn;
         }
     }
 }
