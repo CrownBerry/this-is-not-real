@@ -1,49 +1,47 @@
-﻿using System;
-using System.Player;
-using UnityEngine;
+﻿using System.Player;
 
-public abstract class Command
+public class Command
 {
-    public abstract void Execute(PlayerObject actor);
+    public virtual void Execute(PlayerClass actor)
+    {
+    }
 }
 
 public class MoveLeftCommand : Command
 {
-    public override void Execute(PlayerObject actor)
+    public override void Execute(PlayerClass actor)
     {
-        Debug.Log("left");
-        actor.MoveLeft();
+        actor.state.ChangeMoveDirection(-1f);
     }
 }
 
 public class MoveRightCommand : Command
 {
-    public override void Execute(PlayerObject actor)
+    public override void Execute(PlayerClass actor)
     {
-        Debug.Log("right");
-        actor.MoveRight();
+        actor.state.ChangeMoveDirection(1f);
     }
 }
 
 public class NotMoveCommand : Command
 {
-    public override void Execute(PlayerObject actor)
+    public override void Execute(PlayerClass actor)
     {
-        actor.NotMove();
+        actor.state.ChangeMoveDirection(0f);
     }
 }
 
 public class JumpCommand : Command
 {
-    public override void Execute(PlayerObject actor)
+    public override void Execute(PlayerClass actor)
     {
-        actor.DoJump();
+        actor.state.Jump();
     }
 }
 
 public class DoNothingCommand : Command
 {
-    public override void Execute(PlayerObject actor)
+    public override void Execute(PlayerClass actor)
     {
     }
 }
