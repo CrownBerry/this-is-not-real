@@ -1,4 +1,6 @@
-﻿using System.FSM;
+﻿using System.Collections;
+using System.FSM;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.VR.WSA;
 
@@ -13,9 +15,14 @@ namespace System.Player
         private float movingSpeed;
         public PlayerClass otherPlayer;
 
-        private bool isInside = false;
+        public bool isInside = false;
+        private Collider otherCollider;
 
         private Vector3 savedPosition;
+
+        public Vector3 oldPos;
+        public Vector3 newPos;
+        public Vector3 deltaPos;
 
         private CapsuleCollider _collider;
         private Rigidbody rigidBody;
@@ -25,6 +32,7 @@ namespace System.Player
 
         private void Awake()
         {
+            otherCollider = new Collider();
             _collider = GetComponent<CapsuleCollider>();
             _camera = GameObject.Find("Main Camera").transform;
             savedPosition = transform.position;
@@ -48,6 +56,13 @@ namespace System.Player
         private void LateUpdate()
         {
             RotatePlayer();
+            state.MoveCamera(_camera);
+        }
+
+        private void FixedUpdate()
+        {
+            otherCollider = null;
+            isInside = false;
             Move();
             var newPosition = transform.position;
             var deltaPosition = newPosition - savedPosition;
@@ -56,8 +71,6 @@ namespace System.Player
                 otherPlayer.state.MoveDisabled(deltaPosition);
             }
             savedPosition = transform.position;
-
-            state.MoveCamera(_camera);
         }
 
         private void OnCollisionEnter(Collision other)
@@ -65,19 +78,33 @@ namespace System.Player
             state.Landing();
         }
 
+        private void OnTriggerStay(Collider other)
+        {
+            otherCollider = other;
+            isInside = true;
+            StartCoroutine("WaitingFixedUpdate");
+        }
+
+        IEnumerator WaitingFixedUpdate()
+        {
+            yield return new WaitForFixedUpdate();
+        }
+
         private void OnTriggerEnter(Collider other)
         {
+            otherCollider = other;
             isInside = true;
         }
 
         private void OnTriggerExit(Collider other)
         {
+            otherCollider = null;
             isInside = false;
         }
 
-        public bool IsInside()
+        [CanBeNull] public Collider IsInside()
         {
-            return isInside;
+            return otherCollider;
         }
 
         #region Moving
@@ -148,6 +175,9 @@ namespace System.Player
         {
             var oldPosition = transform.position;
             var newPosition = oldPosition + deltaPosition;
+            oldPos = oldPosition;
+            newPos = newPosition;
+            deltaPos = deltaPosition;
             transform.position = new Vector3(newPosition.x, newPosition.y, newPosition.z);
         }
 

@@ -32,19 +32,11 @@ namespace System.FSM
                     _owner.ChangeHorizontalMove(newDirection);
                     _state = State.Run;
                     break;
-                case State.Run:
-                    _owner.ChangeHorizontalMove(newDirection);
-                    break;
-                case State.Jump:
-                    _owner.ChangeHorizontalMove(newDirection);
-                    break;
-                case State.Fall:
-                    _owner.ChangeHorizontalMove(newDirection);
-                    break;
                 case State.Disable:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    _owner.ChangeHorizontalMove(newDirection);
+                    break;
             }
         }
 
@@ -60,14 +52,8 @@ namespace System.FSM
                     _owner.Jump();
                     _state = State.Jump;
                     break;
-                case State.Jump:
-                    break;
-                case State.Fall:
-                    break;
-                case State.Disable:
-                    break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    break;
             }
         }
 
@@ -75,10 +61,6 @@ namespace System.FSM
         {
             switch (_state)
             {
-                case State.Idle:
-                    break;
-                case State.Run:
-                    break;
                 case State.Jump:
                     _state = State.Idle;
                     break;
@@ -88,7 +70,7 @@ namespace System.FSM
                 case State.Disable:
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    break;
             }
         }
 
@@ -96,19 +78,11 @@ namespace System.FSM
         {
             switch (_state)
             {
-                case State.Idle:
-                    break;
-                case State.Run:
-                    break;
-                case State.Jump:
-                    break;
-                case State.Fall:
-                    break;
                 case State.Disable:
                     _owner.MoveDisabled(transformPosition);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    break;
             }
         }
 
@@ -128,7 +102,14 @@ namespace System.FSM
 
         public void Transgression()
         {
-            if (_owner.IsInside() || _owner.otherPlayer.IsInside()) return;
+            if (_owner.IsInside() != null || _owner.otherPlayer.IsInside() != null)
+            {
+                var _collider = _owner.IsInside() != null ? _owner.IsInside() : _owner.otherPlayer.IsInside();
+                var who = _owner.IsInside() != null ? "my" : "other";
+                Debug.Log(who);
+                Debug.Log(_collider.transform.position);
+                return;
+            }
 
             switch (_state)
             {

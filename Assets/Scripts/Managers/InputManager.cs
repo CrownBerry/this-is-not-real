@@ -11,6 +11,7 @@ namespace System.Managers
 
         private void Awake()
         {
+            Application.targetFrameRate = 30;
             jumpCommand = new JumpCommand();
             moveLeftCommand = new MoveLeftCommand();
             moveRightCommand = new MoveRightCommand();
