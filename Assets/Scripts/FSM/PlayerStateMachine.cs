@@ -108,6 +108,7 @@ namespace System.FSM
                 var who = _owner.IsInside() != null ? "my" : "other";
                 Debug.Log(who);
                 Debug.Log(_collider.transform.position);
+                Debug.DrawLine(_owner.transform.position, _collider.transform.position);
                 return;
             }
 
