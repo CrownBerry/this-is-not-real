@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
-using System.Player;
+using Player;
 using UnityEngine;
 
 namespace System.Managers
 {
     public class InputManager : MonoBehaviour
     {
-        private Command jumpCommand, moveLeftCommand, moveRightCommand, notMoveCommand, transgressionCommand, doNothingCommand;
+        private Command jumpCommand, moveLeftCommand, moveRightCommand, notMoveCommand,
+            transgressionCommand, pauseCommand, doNothingCommand;
+
         protected List<PlayerClass> playerObjectsList = new List<PlayerClass>();
 
         private void Awake()
@@ -18,6 +20,7 @@ namespace System.Managers
             notMoveCommand = new NotMoveCommand();
             doNothingCommand = new DoNothingCommand();
             transgressionCommand = new TransgressionCommand();
+            pauseCommand = new PauseCommand();
         }
 
         private void Start()
@@ -42,6 +45,8 @@ namespace System.Managers
                 playerObjectsList.ForEach(_ => notMoveCommand.Execute(_));
             if (Input.GetButtonDown("Teleport"))
                 playerObjectsList.ForEach(_ => transgressionCommand.Execute(_));
+            if (Input.GetButtonDown("Exit"))
+                pauseCommand.ExecuteWithoutPlayer();
         }
     }
 }

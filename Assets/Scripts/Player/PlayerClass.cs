@@ -1,9 +1,10 @@
-﻿using System.Collections;
-using System.FSM;
+﻿using System;
+using System.Collections;
 using JetBrains.Annotations;
+using Player.FSM;
 using UnityEngine;
 
-namespace System.Player
+namespace Player
 {
     public class PlayerClass : MonoBehaviour
     {
@@ -17,8 +18,6 @@ namespace System.Player
         public bool isInside;
         private Collider otherCollider;
 
-        private Vector3 savedPosition;
-
         private Vector3 constantDeltaPosition;
 
         private new CapsuleCollider collider;
@@ -26,29 +25,30 @@ namespace System.Player
         private Rigidbody rigidBody;
         public PlayerStateMachine.State startingState;
         public PlayerStateMachine state;
+        public BoxStateMachine boxState;
 
         private void Awake()
         {
-            otherCollider = new Collider();
-            collider = GetComponent<CapsuleCollider>();
-            camera = GameObject.Find("Main Camera").transform;
-            savedPosition = transform.position;
-            lookRight = true;
-            horizontalMoving = 0f;
-            movingSpeed = 5f;
+            boxState = new BoxStateMachine(this, BoxStateMachine.State.None);
             state = new PlayerStateMachine(this, startingState);
+            camera = GameObject.Find("Main Camera").transform;
+            collider = GetComponent<CapsuleCollider>();
             rigidBody = GetComponent<Rigidbody>();
 
             var players = GameObject.FindGameObjectsWithTag("Player");
             foreach (var player in players)
             {
                 var playerScript = player.GetComponent<PlayerClass>();
-                if (!playerScript.Equals(this))
-                {
-                    otherPlayer = playerScript;
-                    constantDeltaPosition = transform.position - otherPlayer.transform.position + new Vector3(0f,0.0001f,0f);
-                }
+                if (playerScript.Equals(this)) continue;
+
+                otherPlayer = playerScript;
             }
+
+            constantDeltaPosition = transform.position - otherPlayer.transform.position + new Vector3(0f,0.0001f,0f);
+            otherCollider = new Collider();
+            lookRight = true;
+            horizontalMoving = 0f;
+            movingSpeed = 5f;
         }
 
         private void LateUpdate()
@@ -62,17 +62,16 @@ namespace System.Player
             otherCollider = null;
             isInside = false;
             Move();
-            var newPosition = transform.position;
-            var deltaPosition = newPosition - savedPosition;
             if (otherPlayer != null)
             {
-                otherPlayer.state.MoveDisabled(deltaPosition);
+                otherPlayer.state.MoveDisabled();
             }
-            savedPosition = transform.position;
         }
 
         private void OnCollisionEnter(Collision other)
         {
+            var normal = other.contacts[0].normal;
+            if (normal.y < 0f) return;
             state.Landing();
         }
 
@@ -173,7 +172,7 @@ namespace System.Player
 
         #endregion
 
-        public void MoveDisabled(Vector3 deltaPosition)
+        public void MoveDisabled()
         {
             transform.position = otherPlayer.transform.position + constantDeltaPosition;
         }
