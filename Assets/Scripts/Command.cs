@@ -69,6 +69,14 @@ public class PauseCommand : Command
     }
 }
 
+public class InteractCommand : Command
+{
+    public override void ExecuteWithoutPlayer()
+    {
+        EventManager.TriggerEvent("Interact");
+    }
+}
+
 public class DoNothingCommand : Command
 {
     public override void Execute(PlayerClass actor)

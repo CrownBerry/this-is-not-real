@@ -7,7 +7,7 @@ namespace System.Managers
     public class InputManager : MonoBehaviour
     {
         private Command jumpCommand, moveLeftCommand, moveRightCommand, notMoveCommand,
-            transgressionCommand, pauseCommand, doNothingCommand;
+            transgressionCommand, pauseCommand, interactCommand, doNothingCommand;
 
         protected List<PlayerClass> playerObjectsList = new List<PlayerClass>();
 
@@ -21,6 +21,7 @@ namespace System.Managers
             doNothingCommand = new DoNothingCommand();
             transgressionCommand = new TransgressionCommand();
             pauseCommand = new PauseCommand();
+            interactCommand = new InteractCommand();
         }
 
         private void Start()
@@ -47,6 +48,8 @@ namespace System.Managers
                 playerObjectsList.ForEach(_ => transgressionCommand.Execute(_));
             if (Input.GetButtonDown("Exit"))
                 pauseCommand.ExecuteWithoutPlayer();
+            if(Input.GetButtonDown("Use"))
+                interactCommand.ExecuteWithoutPlayer();
         }
     }
 }

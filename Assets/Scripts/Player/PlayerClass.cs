@@ -8,8 +8,8 @@ namespace Player
 {
     public class PlayerClass : MonoBehaviour
     {
-        private const float MaxSpeed = 5.0f;
-        private const float JumpSpeed = 6.0f;
+        private float MaxSpeed = 5.0f;
+        private float JumpSpeed = 6.0f;
         private float horizontalMoving;
         private bool lookRight;
         private float movingSpeed;
@@ -25,11 +25,11 @@ namespace Player
         private Rigidbody rigidBody;
         public PlayerStateMachine.State startingState;
         public PlayerStateMachine state;
-        public BoxStateMachine boxState;
+        public CarryingStateMachine carryingState;
 
         private void Awake()
         {
-            boxState = new BoxStateMachine(this, BoxStateMachine.State.None);
+            carryingState = new CarryingStateMachine(this, CarryingStateMachine.State.None);
             state = new PlayerStateMachine(this, startingState);
             camera = GameObject.Find("Main Camera").transform;
             collider = GetComponent<CapsuleCollider>();
@@ -53,7 +53,8 @@ namespace Player
 
         private void LateUpdate()
         {
-            RotatePlayer();
+//            RotatePlayer();
+            carryingState.Rotate();
             state.MoveCamera(camera);
         }
 
@@ -116,7 +117,7 @@ namespace Player
             rigidBody.velocity = new Vector3(rigidBody.velocity.x, JumpSpeed, 0);
         }
 
-        private void RotatePlayer()
+        public void RotatePlayer()
         {
             switch (lookRight)
             {
@@ -186,6 +187,11 @@ namespace Player
         {
             rigidBody.isKinematic = !turnOn;
             collider.isTrigger = !turnOn;
+        }
+
+        public void SetMaximumSpeed(float newMax)
+        {
+            MaxSpeed = newMax;
         }
     }
 }
