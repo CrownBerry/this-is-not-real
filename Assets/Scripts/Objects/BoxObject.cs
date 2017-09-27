@@ -24,19 +24,19 @@ namespace System.Objects
         private void OnEnable()
         {
             EventManager.StartListening("Interact", TryGrab);
-            EventManager.StartListening("Jump", DropOnJump);
+            EventManager.StartListening("DropBox", DropOnJump);
         }
 
         private void OnDisable()
         {
             EventManager.StopListening("Interact", TryGrab);
-            EventManager.StopListening("Jump", DropOnJump);
+            EventManager.StopListening("DropBox", DropOnJump);
         }
 
         private void OnDestroy()
         {
             EventManager.StopListening("Interact", TryGrab);
-            EventManager.StopListening("Jump", DropOnJump);
+            EventManager.StopListening("DropBox", DropOnJump);
         }
 
         private void TryGrab(params object[] list)

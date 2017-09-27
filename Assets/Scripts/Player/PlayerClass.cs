@@ -18,7 +18,7 @@ namespace Player
         public bool isInside;
         private Collider otherCollider;
 
-        private Vector3 constantDeltaPosition;
+        public Vector3 constantDeltaPosition;
 
         private new CapsuleCollider collider;
         private new Transform camera;
@@ -100,7 +100,8 @@ namespace Player
             isInside = false;
         }
 
-        [CanBeNull] public Collider IsInside()
+        [CanBeNull]
+        public Collider IsInside()
         {
             return otherCollider;
         }
@@ -125,7 +126,7 @@ namespace Player
                     if (horizontalMoving < 0)
                     {
                         transform.Rotate(0, 180, 0);
-                        otherPlayer.transform.Rotate(0,180,0);
+                        otherPlayer.transform.Rotate(0, 180, 0);
                         otherPlayer.lookRight = !otherPlayer.lookRight;
                         lookRight = !lookRight;
                     }
@@ -134,7 +135,7 @@ namespace Player
                     if (horizontalMoving > 0)
                     {
                         transform.Rotate(0, 180, 0);
-                        otherPlayer.transform.Rotate(0,180,0);
+                        otherPlayer.transform.Rotate(0, 180, 0);
                         otherPlayer.lookRight = !otherPlayer.lookRight;
                         lookRight = !lookRight;
                     }

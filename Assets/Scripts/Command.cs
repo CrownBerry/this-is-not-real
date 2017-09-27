@@ -43,7 +43,7 @@ public class JumpCommand : Command
     public override void Execute(PlayerClass actor)
     {
         actor.state.Jump();
-        EventManager.TriggerEvent("Jump");
+        EventManager.TriggerEvent("DropBox");
     }
 }
 
@@ -52,6 +52,7 @@ public class TransgressionCommand : Command
     public override void Execute(PlayerClass actor)
     {
         actor.state.Transgression();
+        EventManager.TriggerEvent("DropBox");
     }
 }
 
