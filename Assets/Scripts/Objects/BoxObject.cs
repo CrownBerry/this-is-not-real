@@ -10,10 +10,8 @@ namespace System.Objects
     {
         private BoxStateMachine state;
         private Rigidbody rigidbody;
-        [CanBeNull] public PlayerClass player;
-        public Vector3 D;
-        public Vector3 boxVelocity;
-        public float force;
+        [CanBeNull] private PlayerClass player;
+        private Vector3 D;
 
 
         private void Awake()
@@ -21,36 +19,44 @@ namespace System.Objects
             state = new BoxStateMachine(this, BoxStateMachine.State.None);
             rigidbody = GetComponent<Rigidbody>();
             D = new Vector3();
-            boxVelocity = rigidbody.velocity;
         }
 
         private void OnEnable()
         {
             EventManager.StartListening("Interact", TryGrab);
+            EventManager.StartListening("Jump", DropOnJump);
         }
 
         private void OnDisable()
         {
             EventManager.StopListening("Interact", TryGrab);
+            EventManager.StopListening("Jump", DropOnJump);
         }
 
         private void OnDestroy()
         {
             EventManager.StopListening("Interact", TryGrab);
+            EventManager.StopListening("Jump", DropOnJump);
         }
 
         private void TryGrab(params object[] list)
         {
             if (player != null)
             {
-                state.Switch();
+                state.Switch(player);
             }
+        }
+
+        public void DropOnJump(params object[] list)
+        {
+            if (player == null) return;
+
+            player.SetMaximumSpeed(5f);
+            state.Drop();
         }
 
         private void Update()
         {
-            boxVelocity = rigidbody.velocity;
-            force = 0f;
             if (player == null) return;
 
             D = player.transform.position - transform.position;
@@ -59,26 +65,26 @@ namespace System.Objects
 
             if (dist > 5)
             {
+                player.SetMaximumSpeed(5f);
                 player = null;
                 state.Drop();
             }
             else if (dist > 0.3)
             {
-                var pullF = 50f;
-                var pullForDist = (dist - 0.3f);
-                if (pullForDist > 70f)
+                var pullF = 10f;
+                var pullForDist = (dist - 0.3f) / 2f;
+                if (pullForDist > 20f)
                 {
-                    pullForDist = 70f;
+                    pullForDist = 20f;
                 }
                 pullF += pullForDist;
                 state.Move(pullDir, pullF);
-                force = pullF;
             }
         }
 
         public void Move(Vector3 pullDir, float pullF)
         {
-            rigidbody.AddForce(pullDir * (pullF * Time.deltaTime), ForceMode.Acceleration);
+            rigidbody.velocity += pullDir * (pullF * Time.deltaTime);
         }
 
         private void OnCollisionEnter(Collision other)

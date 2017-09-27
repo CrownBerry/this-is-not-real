@@ -43,6 +43,7 @@ public class JumpCommand : Command
     public override void Execute(PlayerClass actor)
     {
         actor.state.Jump();
+        EventManager.TriggerEvent("Jump");
     }
 }
 

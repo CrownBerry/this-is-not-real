@@ -26,15 +26,17 @@ namespace Player.FSM
             return state;
         }
 
-        public void Switch()
+        public void Switch(PlayerClass playerClass)
         {
             switch (state)
             {
                 case State.None:
                     state = State.Grabbed;
+                    playerClass.SetMaximumSpeed(2f);
                     break;
                 default:
                     state = State.None;
+                    playerClass.SetMaximumSpeed(5f);
                     break;
             }
         }
