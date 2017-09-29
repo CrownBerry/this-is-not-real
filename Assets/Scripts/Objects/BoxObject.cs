@@ -11,14 +11,12 @@ namespace System.Objects
         private BoxStateMachine state;
         private Rigidbody rigidbody;
         [CanBeNull] private PlayerClass player;
-        private Vector3 D;
 
 
         private void Awake()
         {
             state = new BoxStateMachine(this, BoxStateMachine.State.None);
             rigidbody = GetComponent<Rigidbody>();
-            D = new Vector3();
         }
 
         private void OnEnable()
@@ -59,26 +57,26 @@ namespace System.Objects
         {
             if (player == null) return;
 
-            D = player.transform.position - transform.position;
-            var dist = D.magnitude;
-            var pullDir = D.normalized;
+            var directionVector = player.transform.position - transform.position;
+            var distantion = directionVector.magnitude;
+            var pullDirection = directionVector.normalized;
 
-            if (dist > 5)
+            if (distantion > 5)
             {
                 player.SetMaximumSpeed(5f);
                 player = null;
                 state.Drop();
             }
-            else if (dist > 0.3)
+            else if (distantion > 0.3)
             {
-                var pullF = 10f;
-                var pullForDist = (dist - 0.3f) / 2f;
-                if (pullForDist > 20f)
+                var pullForce = 10f;
+                var pullForDistantion = (distantion - 0.3f) / 2f;
+                if (pullForDistantion > 20f)
                 {
-                    pullForDist = 20f;
+                    pullForDistantion = 20f;
                 }
-                pullF += pullForDist;
-                state.Move(pullDir, pullF);
+                pullForce += pullForDistantion;
+                state.Move(pullDirection, pullForce);
             }
         }
 
