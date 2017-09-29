@@ -26,11 +26,14 @@ namespace Player
         public PlayerStateMachine.State startingState;
         public PlayerStateMachine state;
         public CarryingStateMachine carryingState;
+        public TransgressionStateMachine transgressionState;
 
         private void Awake()
         {
             carryingState = new CarryingStateMachine(this, CarryingStateMachine.State.None);
+            transgressionState = new TransgressionStateMachine(this);
             state = new PlayerStateMachine(this, startingState);
+
             camera = GameObject.Find("Main Camera").transform;
             collider = GetComponent<CapsuleCollider>();
             rigidBody = GetComponent<Rigidbody>();
@@ -45,6 +48,7 @@ namespace Player
             }
 
             constantDeltaPosition = transform.position - otherPlayer.transform.position + new Vector3(0f,0.0001f,0f);
+
             otherCollider = new Collider();
             lookRight = true;
             horizontalMoving = 0f;

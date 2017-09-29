@@ -41,6 +41,7 @@ namespace System.Objects
         {
             if (player != null)
             {
+                player.carryingState.Next();
                 state.Switch(player);
             }
         }
@@ -50,6 +51,7 @@ namespace System.Objects
             if (player == null) return;
 
             player.SetMaximumSpeed(5f);
+            player.carryingState.Next();
             state.Drop();
         }
 
@@ -64,6 +66,7 @@ namespace System.Objects
             if (distantion > 5)
             {
                 player.SetMaximumSpeed(5f);
+                player.carryingState.Next();
                 player = null;
                 state.Drop();
             }

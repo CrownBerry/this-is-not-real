@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour {
 	Text infoText;
 
 	private GameObject pausePanel;
+	private Button pauseResumeButton;
 	private Slider staminaSlider;
 	private Image stressImage;
 	private Color col;
@@ -22,9 +23,12 @@ public class UIManager : MonoBehaviour {
 		staminaSlider = GameObject.Find ("StaminaSlider").GetComponent<Slider> ();
 		stressImage = GameObject.Find ("StressImage").GetComponent<Image> ();
 		pausePanel = GameObject.Find ("PauseMenu");
+		pauseResumeButton = GameObject.Find("ResumeButton").GetComponent<Button>();
 		pausePanel.SetActive (false);
 		tipsText.text = "";
 		col = stressImage.color;
+
+		pauseResumeButton.onClick.AddListener(SwitchPause);
 	}
 
 	void Update() {

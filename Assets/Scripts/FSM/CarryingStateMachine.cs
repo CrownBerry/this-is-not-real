@@ -35,14 +35,17 @@ namespace Player.FSM
             }
         }
 
-        public void Next(bool isCarry)
+        public void Next()
         {
-            if (isCarry)
+            switch (state)
             {
-                state = State.Carrying;
-                return;
+                case State.None:
+                    state = State.Carrying;
+                    break;
+                default:
+                    state = State.None;
+                    break;
             }
-            state = State.None;
         }
     }
 }
