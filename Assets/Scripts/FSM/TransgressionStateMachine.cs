@@ -1,4 +1,7 @@
-﻿namespace Player.FSM
+﻿using System;
+using UnityEngine;
+
+namespace Player.FSM
 {
     public class TransgressionStateMachine
     {
@@ -18,5 +21,25 @@
         }
 
 
+        public bool CanTransgression()
+        {
+            return state == State.None;
+        }
+
+        public void Next()
+        {
+            switch (state)
+            {
+                case State.InTransgressionProcess:
+                    state = State.None;
+                    break;
+                case State.None:
+                    state = State.InTransgressionProcess;
+                    break;
+                default:
+                    state = State.None;
+                    break;
+            }
+        }
     }
 }

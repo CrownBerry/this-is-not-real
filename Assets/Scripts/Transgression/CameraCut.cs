@@ -1,0 +1,96 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CameraCut : MonoBehaviour
+{
+    private Camera _camera;
+    public float goal;
+    public Rect myRect;
+
+    private void Awake()
+    {
+        goal = 0.0f;
+        _camera = GetComponent<Camera>();
+        myRect = new Rect(0, 0, 1, 0);
+        SetScissorRect(_camera, myRect);
+    }
+
+    private void OnEnable()
+    {
+        EventManager.StartListening("OnViewportGoal", SetNewGoal);
+    }
+
+    private void OnDisable()
+    {
+        EventManager.StopListening("OnViewportGoal", SetNewGoal);
+    }
+
+    private void Update()
+    {
+        if (myRect.height < goal)
+        {
+            if (goal - myRect.height > Time.deltaTime + 0.01)
+                myRect.height += Time.deltaTime;
+            else
+            {
+                myRect.height = 1;
+//                Debug.Log(goal - myRect.height > 0.01);
+                EventManager.TriggerEvent("EndTransgression");
+            }
+        }
+        else if (myRect.height > goal)
+        {
+            if (myRect.height - goal > Time.deltaTime + 0.01)
+                myRect.height -= Time.deltaTime;
+            else
+            {
+                myRect.height = 0;
+                SetScissorRect(_camera, myRect);
+//                Debug.Log(myRect.height - goal > 0.01);
+                EventManager.TriggerEvent("EndTransgression");
+            }
+        }
+        if (myRect.height != 0)
+        {
+            SetScissorRect(_camera, myRect);
+        }
+    }
+
+    private void SetNewGoal(params object[] list)
+    {
+        var newGoal = (float) list[0];
+        goal = newGoal;
+//        Debug.Log(string.Format("New camera goal is {0}", newGoal));
+    }
+
+    public static void SetScissorRect(Camera camera, Rect rect)
+    {
+        if (rect.x < 0)
+        {
+            rect.width += rect.x;
+            rect.x = 0;
+        }
+
+        if (rect.y < 0)
+        {
+            rect.height += rect.y;
+            rect.y = 0;
+        }
+
+        rect.width = Mathf.Min(1 - rect.x, rect.width);
+        rect.height = Mathf.Min(1 - rect.y, rect.height);
+
+        camera.rect = new Rect(0, 0, 1, 1);
+        camera.ResetProjectionMatrix();
+        var m = camera.projectionMatrix;
+        camera.rect = rect;
+        var m1 = Matrix4x4.TRS(new Vector3(rect.x, rect.y, 0), Quaternion.identity,
+            new Vector3(rect.width, rect.height, 1));
+        var m2 = Matrix4x4.TRS(new Vector3((1 / rect.width - 1), (1 / rect.height - 1), 0), Quaternion.identity,
+            new Vector3(1 / rect.width, 1 / rect.height, 1));
+        var m3 = Matrix4x4.TRS(new Vector3(-rect.x * 2 / rect.width, -rect.y * 2 / rect.height, 0), Quaternion.identity,
+            Vector3.one);
+        camera.projectionMatrix = m3 * m2 * m;
+    }
+}

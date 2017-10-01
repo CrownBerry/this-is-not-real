@@ -41,6 +41,11 @@ namespace Player.FSM
             }
         }
 
+        public bool IsCarry()
+        {
+            return state == State.Grabbed;
+        }
+
         public void Drop()
         {
             state = State.None;

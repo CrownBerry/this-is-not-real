@@ -10,15 +10,15 @@ namespace Player
     {
         private float MaxSpeed = 5.0f;
         private float JumpSpeed = 6.0f;
-        private float horizontalMoving;
-        private bool lookRight;
+        public float horizontalMoving;
+        public bool lookRight;
         private float movingSpeed;
         public PlayerClass otherPlayer;
 
         public bool isInside;
         private Collider otherCollider;
 
-        public Vector3 constantDeltaPosition;
+        private Vector3 constantDeltaPosition;
 
         private new CapsuleCollider collider;
         private new Transform camera;
@@ -34,7 +34,16 @@ namespace Player
             transgressionState = new TransgressionStateMachine(this);
             state = new PlayerStateMachine(this, startingState);
 
-            camera = GameObject.Find("Main Camera").transform;
+            switch (gameObject.name == "Player")
+            {
+                case true:
+                    camera = GameObject.Find("Main Camera").transform;
+                    break;
+                default:
+                    camera = GameObject.Find("Second Camera").transform;
+                    break;
+            }
+
             collider = GetComponent<CapsuleCollider>();
             rigidBody = GetComponent<Rigidbody>();
 
@@ -47,7 +56,7 @@ namespace Player
                 otherPlayer = playerScript;
             }
 
-            constantDeltaPosition = transform.position - otherPlayer.transform.position + new Vector3(0f,0.0001f,0f);
+            constantDeltaPosition = transform.position - otherPlayer.transform.position + new Vector3(0f, 0.0001f, 0f);
 
             otherCollider = new Collider();
             lookRight = true;
@@ -55,11 +64,30 @@ namespace Player
             movingSpeed = 5f;
         }
 
+        private void OnEnable()
+        {
+            EventManager.StartListening("EndTransgression", OnTransgressionEnd);
+        }
+
+        private void OnDisable()
+        {
+            EventManager.StopListening("EndTransgression", OnTransgressionEnd);
+        }
+
+        private void OnDestroy()
+        {
+            EventManager.StopListening("EndTransgression", OnTransgressionEnd);
+        }
+
         private void LateUpdate()
         {
-//            RotatePlayer();
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                Debug.Log(string.Format("Carrying state for {1} is: {0}", carryingState.Now(), gameObject.name));
+            }
             carryingState.Rotate();
-            state.MoveCamera(camera);
+            camera.position = Vector3.Lerp(camera.position,
+                new Vector3(transform.position.x, transform.position.y + 3, -7), Time.deltaTime * 4.0f);
         }
 
         private void FixedUpdate()
@@ -124,26 +152,23 @@ namespace Player
 
         public void RotatePlayer()
         {
-            switch (lookRight)
+            if (lookRight && horizontalMoving < 0)
             {
-                case true:
-                    if (horizontalMoving < 0)
-                    {
-                        transform.Rotate(0, 180, 0);
-                        otherPlayer.transform.Rotate(0, 180, 0);
-                        otherPlayer.lookRight = !otherPlayer.lookRight;
-                        lookRight = !lookRight;
-                    }
-                    break;
-                case false:
-                    if (horizontalMoving > 0)
-                    {
-                        transform.Rotate(0, 180, 0);
-                        otherPlayer.transform.Rotate(0, 180, 0);
-                        otherPlayer.lookRight = !otherPlayer.lookRight;
-                        lookRight = !lookRight;
-                    }
-                    break;
+//                Debug.Log(string.Format("lookRight was for {1} is: {0}", lookRight, gameObject.name));
+                transform.Rotate(0, 180, 0);
+//                otherPlayer.transform.Rotate(0, 180, 0);
+//                otherPlayer.lookRight = !otherPlayer.lookRight;
+                lookRight = !lookRight;
+//                Debug.Log(string.Format("lookRight now for {1} is: {0}", lookRight, gameObject.name));
+            }
+            else if (!lookRight && horizontalMoving > 0)
+            {
+//                Debug.Log(string.Format("lookRight was for {1} is: {0}", lookRight, gameObject.name));
+                transform.Rotate(0, 180, 0);
+//                otherPlayer.transform.Rotate(0, 180, 0);
+//                otherPlayer.lookRight = !otherPlayer.lookRight;
+                lookRight = !lookRight;
+//                Debug.Log(string.Format("lookRight now for {1} is: {0}", lookRight, gameObject.name));
             }
         }
 
@@ -197,6 +222,12 @@ namespace Player
         public void SetMaximumSpeed(float newMax)
         {
             MaxSpeed = newMax;
+        }
+
+        private void OnTransgressionEnd(params object[] list)
+        {
+            otherPlayer.transgressionState.Next();
+            transgressionState.Next();
         }
     }
 }

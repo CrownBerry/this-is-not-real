@@ -50,14 +50,19 @@ namespace System.Objects
         {
             if (player == null) return;
 
+            if (!state.IsCarry()) return;
+
             player.SetMaximumSpeed(5f);
             player.carryingState.Next();
+            player = null;
             state.Drop();
         }
 
         private void Update()
         {
             if (player == null) return;
+
+            if (!state.IsCarry()) return;
 
             var directionVector = player.transform.position - transform.position;
             var distantion = directionVector.magnitude;

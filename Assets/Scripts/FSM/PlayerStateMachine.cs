@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Player.FSM
 {
@@ -27,15 +28,30 @@ namespace Player.FSM
         {
             switch (state)
             {
+                case State.Run:
                 case State.Idle:
                     owner.ChangeHorizontalMove(newDirection);
+                    if (newDirection == 0)
+                    {
+                        state = State.Idle;
+                        break;
+                    }
                     state = State.Run;
                     break;
+                case State.Fall:
+                case State.Jump:
                 case State.Disable:
-                    break;
-                default:
                     owner.ChangeHorizontalMove(newDirection);
                     break;
+//                default:
+//                    owner.ChangeHorizontalMove(newDirection);
+//                    if (newDirection == 0)
+//                    {
+//                        state = State.Idle;
+//                        break;
+//                    }
+//                    state = State.Run;
+//                    break;
             }
         }
 
@@ -101,6 +117,12 @@ namespace Player.FSM
 
         public void Transgression()
         {
+            if (!owner.transgressionState.CanTransgression())
+            {
+                Debug.Log("Can't transgression cause state");
+                return;
+            }
+
             if (owner.IsInside() != null || owner.otherPlayer.IsInside() != null)
             {
                 var collider = owner.IsInside() != null ? owner.IsInside() : owner.otherPlayer.IsInside();
@@ -111,16 +133,31 @@ namespace Player.FSM
                 return;
             }
 
+            owner.transgressionState.Next();
+
             switch (state)
             {
                 case State.Disable:
                     state = State.Idle;
-                    owner.CameraFollowMe();
                     owner.Turn(true);
                     break;
                 default:
                     state = State.Disable;
                     owner.Turn(false);
+                    ShiftCameraView();
+                    break;
+            }
+        }
+
+        private void ShiftCameraView()
+        {
+            switch (owner.gameObject.name == "Player")
+            {
+                case true:
+                    EventManager.TriggerEvent("OnViewportGoal", 1f);
+                    break;
+                default:
+                    EventManager.TriggerEvent("OnViewportGoal", 0f);
                     break;
             }
         }

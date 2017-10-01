@@ -29,6 +29,7 @@ namespace Player.FSM
                     break;
                 case State.None:
                     owner.RotatePlayer();
+//                    Debug.Log(string.Format("{0} call Rotate", owner.gameObject.name));
                     break;
                 default:
                     break;
@@ -46,6 +47,12 @@ namespace Player.FSM
                     state = State.None;
                     break;
             }
+//            Debug.Log(string.Format("Now carrying state is: {0}", state));
+        }
+
+        public string Now()
+        {
+            return state.ToString();
         }
     }
 }
