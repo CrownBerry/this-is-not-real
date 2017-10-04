@@ -53,9 +53,9 @@ public partial class GameManager : MonoBehaviour {
 
 	void Update () {
 		InputChecking ();
-        if (UIManager.instance) { UIManager.instance.staminaSlider.value = stamina; }
+//        if (UIManager.instance) { UIManager.instance.staminaSlider.value = stamina; }
 		staminaManage();
-        if (UIManager.instance) { UIManager.instance.pausePanel.SetActive(isPause); }
+//        if (UIManager.instance) { UIManager.instance.pausePanel.SetActive(isPause); }
 		Time.timeScale = isPause ? 0.0f : 1.0f;
 	}
 

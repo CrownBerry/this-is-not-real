@@ -5,6 +5,6 @@ using UnityEngine;
 public class CapFPS : MonoBehaviour {
 
 	void Awake () {
-		Application.targetFrameRate = 60;
+		Application.targetFrameRate = 30;
 	}
 }

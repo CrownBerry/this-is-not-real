@@ -7,30 +7,32 @@ public class UIManager : MonoBehaviour {
 
 	Text tipsText;
 	Text infoText;
-	public GameObject pausePanel;
-	public Slider staminaSlider;
-	public Image stressImage;
-	public static UIManager instance;
-	public Color col;
+
+	private GameObject pausePanel;
+	private Button pauseResumeButton;
+	private Slider staminaSlider;
+	private Image stressImage;
+	private Color col;
+
+	private bool isPause;
 
 	// Use this for initialization
 	void Awake () {
-		if (instance == null)
-			instance = this;
-		else if (instance != this)
-			Destroy (gameObject);
 		tipsText = GameObject.Find("Tips").GetComponent<Text> ();
 		infoText = GameObject.Find ("Info").GetComponent<Text> ();
 		staminaSlider = GameObject.Find ("StaminaSlider").GetComponent<Slider> ();
 		stressImage = GameObject.Find ("StressImage").GetComponent<Image> ();
 		pausePanel = GameObject.Find ("PauseMenu");
+		pauseResumeButton = GameObject.Find("ResumeButton").GetComponent<Button>();
 		pausePanel.SetActive (false);
 		tipsText.text = "";
 		col = stressImage.color;
+
+		pauseResumeButton.onClick.AddListener(SwitchPause);
 	}
 
 	void Update() {
-		col.a = GameManager.instance.stress / 255.0f;
+		col.a = 0 / 255.0f;
 		stressImage.color = col;
 	}
 	
@@ -46,4 +48,11 @@ public class UIManager : MonoBehaviour {
 	}
 
 
+	public void SwitchPause()
+	{
+        isPause = !isPause;
+
+        Time.timeScale = isPause ? 0.0f : 1.0f;
+        pausePanel.SetActive(isPause);
+	}
 }
