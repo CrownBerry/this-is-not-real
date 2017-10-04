@@ -155,9 +155,11 @@ namespace Player.FSM
             {
                 case true:
                     EventManager.TriggerEvent("OnViewportGoal", 1f);
+                    EventManager.TriggerEvent("OnShadowSlide", true);
                     break;
                 default:
                     EventManager.TriggerEvent("OnViewportGoal", 0f);
+                    EventManager.TriggerEvent("OnShadowSlide", false);
                     break;
             }
         }

@@ -35,7 +35,6 @@ public class CameraCut : MonoBehaviour
             else
             {
                 myRect.height = 1;
-//                Debug.Log(goal - myRect.height > 0.01);
                 EventManager.TriggerEvent("EndTransgression");
             }
         }
@@ -47,7 +46,6 @@ public class CameraCut : MonoBehaviour
             {
                 myRect.height = 0;
                 SetScissorRect(_camera, myRect);
-//                Debug.Log(myRect.height - goal > 0.01);
                 EventManager.TriggerEvent("EndTransgression");
             }
         }
@@ -61,7 +59,6 @@ public class CameraCut : MonoBehaviour
     {
         var newGoal = (float) list[0];
         goal = newGoal;
-//        Debug.Log(string.Format("New camera goal is {0}", newGoal));
     }
 
     public static void SetScissorRect(Camera camera, Rect rect)
