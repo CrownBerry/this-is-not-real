@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
 public class CameraCut : MonoBehaviour
@@ -8,12 +10,15 @@ public class CameraCut : MonoBehaviour
     public float goal;
     public Rect myRect;
 
+    private float summary;
+
     private void Awake()
     {
         goal = 0.0f;
         _camera = GetComponent<Camera>();
         myRect = new Rect(0, 0, 1, 0);
         SetScissorRect(_camera, myRect);
+        summary = 0f;
     }
 
     private void OnEnable()
@@ -31,7 +36,11 @@ public class CameraCut : MonoBehaviour
         if (myRect.height < goal)
         {
             if (goal - myRect.height > Time.deltaTime + 0.01)
+            {
                 myRect.height += Time.deltaTime;
+                summary += Time.deltaTime * 100;
+                Debug.Log(string.Format("Camera part: {0}, sum: {1}", Time.deltaTime * 100, summary));
+            }
             else
             {
                 myRect.height = 1;
