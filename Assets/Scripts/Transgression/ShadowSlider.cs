@@ -1,24 +1,44 @@
 ﻿using System;
 using System.Collections;
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Transgression
 {
     public class ShadowSlider : MonoBehaviour
     {
-        private readonly float min = -1200f;
-        private readonly float max = Screen.height;
+        private float minStart;
+        private float maxStart;
+        private float min = -250f;
+        private float max = Screen.height + 250f;
         private RectTransform transform;
+
+        private float summary;
+        private float realHeight;
 
         private float goal;
 
         private void Awake()
         {
+            var canvas = FindObjectOfType<Canvas>().GetComponent<CanvasScaler>();
+            Debug.Log(Screen.height);
+            Debug.Log(Screen.currentResolution.height);
+            Debug.Log(canvas.referenceResolution.y);
+
+            realHeight = canvas.referenceResolution.y;
+
+            minStart = 0f;
+            maxStart = realHeight;
+            min = -250f;
+            max = realHeight + 250f;
+
             transform = GetComponent<RectTransform>();
             goal = min;
             transform.anchoredPosition3D= new Vector3(transform.anchoredPosition3D.x,
                 goal,
                 transform.anchoredPosition3D.z);
+            summary = 0f;
         }
 
         private void OnEnable()
@@ -44,7 +64,7 @@ namespace Transgression
                 if (yPosition - min < float.Epsilon)
                 {
                     transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
-                        min * 0.75f,
+                        minStart,
                         transform.anchoredPosition3D.z);
                 }
                 Slide(1);
@@ -54,7 +74,7 @@ namespace Transgression
                 if (max - yPosition < float.Epsilon)
                 {
                     transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
-                        max * 0.75f,
+                        maxStart,
                         transform.anchoredPosition3D.z);
                 }
                 Slide(-1);
@@ -71,20 +91,33 @@ namespace Transgression
         private void SetNewGoal(params object[] list)
         {
             var direction = (bool) list[0];
-            goal = direction ? max : min;
+            goal = direction ? maxStart : minStart;
         }
 
         private void Slide(int direction)
         {
-            var step = Time.deltaTime * (max - min) * 0.7f;
+
+            var step = Time.deltaTime * (maxStart - minStart);
+            summary += step;
             transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
                 transform.anchoredPosition3D.y + direction * step,
                 transform.anchoredPosition3D.z);
             if (Mathf.Abs(goal - transform.anchoredPosition3D.y) < step)
             {
-                transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
-                    goal,
-                    transform.anchoredPosition3D.z);
+                if ( Mathf.Abs(goal - maxStart) < float.Epsilon)
+                {
+                    transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
+                        max,
+                        transform.anchoredPosition3D.z);
+                    goal = max;
+                }
+                else
+                {
+                    transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
+                        min,
+                        transform.anchoredPosition3D.z);
+                    goal = min;
+                }
             }
         }
 
