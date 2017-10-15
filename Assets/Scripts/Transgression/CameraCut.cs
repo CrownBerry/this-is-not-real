@@ -10,6 +10,8 @@ public class CameraCut : MonoBehaviour
     public float goal;
     public Rect myRect;
 
+    private float step;
+
     private float summary;
 
     private void Awake()
@@ -33,13 +35,12 @@ public class CameraCut : MonoBehaviour
 
     private void Update()
     {
+        step = Time.deltaTime * 2.5f;
         if (myRect.height < goal)
         {
-            if (goal - myRect.height > Time.deltaTime + 0.01)
+            if (goal - myRect.height > step + 0.01)
             {
-                myRect.height += Time.deltaTime;
-                summary += Time.deltaTime * 100;
-                Debug.Log(string.Format("Camera part: {0}, sum: {1}", Time.deltaTime * 100, summary));
+                myRect.height += step;
             }
             else
             {
@@ -49,8 +50,8 @@ public class CameraCut : MonoBehaviour
         }
         else if (myRect.height > goal)
         {
-            if (myRect.height - goal > Time.deltaTime + 0.01)
-                myRect.height -= Time.deltaTime;
+            if (myRect.height - goal > step + 0.01)
+                myRect.height -= step;
             else
             {
                 myRect.height = 0;

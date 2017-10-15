@@ -97,7 +97,7 @@ namespace Transgression
         private void Slide(int direction)
         {
 
-            var step = Time.deltaTime * (maxStart - minStart);
+            var step = Time.deltaTime * (maxStart - minStart) * 2.5f;
             summary += step;
             transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
                 transform.anchoredPosition3D.y + direction * step,
