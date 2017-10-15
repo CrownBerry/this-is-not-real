@@ -226,6 +226,7 @@ namespace Player
 
         private void OnTransgressionEnd(params object[] list)
         {
+            Debug.Log("End transgression");
             otherPlayer.transgressionState.Next();
             transgressionState.Next();
         }

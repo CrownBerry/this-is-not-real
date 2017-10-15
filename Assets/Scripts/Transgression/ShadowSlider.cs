@@ -1,30 +1,23 @@
-﻿using System;
-using System.Collections;
-using System.Security.Cryptography.X509Certificates;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace Transgression
 {
     public class ShadowSlider : MonoBehaviour
     {
-        private float minStart;
+        private float goal;
+        private float max = Screen.height + 250f;
         private float maxStart;
         private float min = -250f;
-        private float max = Screen.height + 250f;
-        private RectTransform transform;
-
-        private float summary;
+        private float minStart;
         private float realHeight;
 
-        private float goal;
+        private float summary;
+        private RectTransform transform;
 
         private void Awake()
         {
             var canvas = FindObjectOfType<Canvas>().GetComponent<CanvasScaler>();
-            Debug.Log(Screen.height);
-            Debug.Log(Screen.currentResolution.height);
-            Debug.Log(canvas.referenceResolution.y);
 
             realHeight = canvas.referenceResolution.y;
 
@@ -35,7 +28,7 @@ namespace Transgression
 
             transform = GetComponent<RectTransform>();
             goal = min;
-            transform.anchoredPosition3D= new Vector3(transform.anchoredPosition3D.x,
+            transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
                 goal,
                 transform.anchoredPosition3D.z);
             summary = 0f;
@@ -59,86 +52,42 @@ namespace Transgression
         private void Update()
         {
             var yPosition = transform.anchoredPosition3D.y;
+
             if (yPosition < goal)
             {
-                if (yPosition - min < float.Epsilon)
-                {
-                    transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
-                        minStart,
-                        transform.anchoredPosition3D.z);
-                }
+                if (Mathf.Abs(yPosition - minStart) < 20)
+                    EventManager.TriggerEvent("OnViewportGoal", 1f);
                 Slide(1);
             }
             else if (goal < yPosition)
             {
-                if (max - yPosition < float.Epsilon)
-                {
-                    transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
-                        maxStart,
-                        transform.anchoredPosition3D.z);
-                }
+                if (Mathf.Abs(yPosition - maxStart) < 20)
+                    EventManager.TriggerEvent("OnViewportGoal", 0f);
                 Slide(-1);
             }
         }
 
-//        private void CallSliding(params object[] list)
-//        {
-//            var sliding = Sliding((bool) list[0]);
-//            print(string.Format("Min is: {0}, and msx is: {1}", min, max));
-//            StartCoroutine(sliding);
-//        }
-
         private void SetNewGoal(params object[] list)
         {
             var direction = (bool) list[0];
-            goal = direction ? maxStart : minStart;
+            goal = direction ? max : min;
         }
 
         private void Slide(int direction)
         {
-
             var step = Time.deltaTime * (maxStart - minStart) * 2.5f;
-            summary += step;
             transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
                 transform.anchoredPosition3D.y + direction * step,
                 transform.anchoredPosition3D.z);
+
             if (Mathf.Abs(goal - transform.anchoredPosition3D.y) < step)
             {
-                if ( Mathf.Abs(goal - maxStart) < float.Epsilon)
-                {
-                    transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
-                        max,
-                        transform.anchoredPosition3D.z);
-                    goal = max;
-                }
-                else
-                {
-                    transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
-                        min,
-                        transform.anchoredPosition3D.z);
-                    goal = min;
-                }
+                transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
+                    goal,
+                    transform.anchoredPosition3D.z);
+                EventManager.TriggerEvent("EndTransgression");
             }
-        }
-
-//        private IEnumerator Sliding(bool fromLab)
-//        {
-//            var goal = fromLab ? min : max;
-//            var dir = fromLab ? -1f : 1f;
-//            var step = 100 + (Time.deltaTime * (max-min) + min );
-//            print(string.Format("Shadow goal is: {0}, and direction is: {1}", goal, dir));
-//            while (transform.position.y < max && transform.position.y > min)
-//            {
-//                var step = -min + (Time.deltaTime * (max-min) + min );
-//                print(string.Format("New pos is: {0}", transform.position.y + dir * step));
-//                transform.position = new Vector3(transform.position.x,
-//                    transform.position.y + dir * step,
-//                    transform.position.z);
-//                yield return null;
 //            }
-//            transform.position = new Vector3(transform.position.x, goal, transform.position.z);
-//            print(string.Format("goal was: {0}, set position to: {1}", goal, transform.position.y));
-//            yield break;
-//        }
+        }
     }
 }
