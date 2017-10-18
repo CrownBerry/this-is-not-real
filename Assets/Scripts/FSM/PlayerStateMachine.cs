@@ -163,5 +163,10 @@ namespace Player.FSM
                     break;
             }
         }
+
+        public string CurrentState()
+        {
+            return state.ToString();
+        }
     }
 }

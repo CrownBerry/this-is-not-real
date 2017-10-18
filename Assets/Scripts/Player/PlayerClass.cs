@@ -83,7 +83,7 @@ namespace Player
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
-                Debug.Log(string.Format("Carrying state for {1} is: {0}", carryingState.Now(), gameObject.name));
+                Debug.Log(string.Format("State of {0} is {1}", gameObject.name, state.CurrentState()));
             }
             carryingState.Rotate();
             camera.position = Vector3.Lerp(camera.position,
