@@ -4,6 +4,7 @@ using System.Linq;
 using Interfaces;
 using Puzzles.Enums;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Puzzles
 {
@@ -12,21 +13,21 @@ namespace Puzzles
         PuzzleState state;
         IList<ISwitchable> switchers = new List<ISwitchable>();
 
+        private Vector3 openPosition;
+        private Vector3 closePosition;
+
         void Awake()
         {
             state = PuzzleState.NotSolved;
+            closePosition = transform.position;
+            openPosition = new Vector3(transform.position.x,
+                transform.position.y - transform.localScale.y,
+                transform.position.z);
         }
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                foreach (var switchable in switchers)
-                {
-                    Debug.Log(string.Format("{0}", switchable.IsClose()));
-                }
-            }
-
+            ChangePosition();
             if (!switchers.Any()) return;
 
             if (switchers.Any(_ => _.IsClose()))
@@ -40,6 +41,22 @@ namespace Puzzles
 
             Open();
             state = PuzzleState.Solved;
+        }
+
+        private void ChangePosition()
+        {
+            var newPosition = new Vector3();
+            switch (state)
+            {
+                case PuzzleState.Solved:
+                    newPosition = openPosition;
+                    break;
+                case PuzzleState.NotSolved:
+                    newPosition = closePosition;
+                    break;
+            }
+
+            transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime);
         }
 
         public void AddToList(ISwitchable switcher)
