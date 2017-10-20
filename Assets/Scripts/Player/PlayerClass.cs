@@ -85,10 +85,6 @@ namespace Player
 
         private void LateUpdate()
         {
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                TryInteract();
-            }
             carryingState.Rotate();
             camera.position = Vector3.Lerp(camera.position,
                 new Vector3(transform.position.x, transform.position.y + 3, -7), Time.deltaTime * 4.0f);
@@ -204,7 +200,7 @@ namespace Player
                     : new Vector3(-MaxSpeed, currentVerticalVelocity, 0f);
         }
 
-        #endregion
+        #endregion Moving
 
         public void MoveDisabled()
         {

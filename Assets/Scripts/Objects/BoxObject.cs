@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography.X509Certificates;
+using Interfaces;
 using JetBrains.Annotations;
 using Player;
 using Player.FSM;
@@ -6,7 +7,7 @@ using UnityEngine;
 
 namespace System.Objects
 {
-    public class BoxObject : MonoBehaviour
+    public class BoxObject : MonoBehaviour, IInteractable
     {
         private BoxStateMachine state;
         private Rigidbody rigidbody;
@@ -19,31 +20,29 @@ namespace System.Objects
             rigidbody = GetComponent<Rigidbody>();
         }
 
+        #region Events
+
         private void OnEnable()
         {
-            EventManager.StartListening("Interact", TryGrab);
             EventManager.StartListening("DropBox", DropOnJump);
         }
 
         private void OnDisable()
         {
-            EventManager.StopListening("Interact", TryGrab);
             EventManager.StopListening("DropBox", DropOnJump);
         }
 
         private void OnDestroy()
         {
-            EventManager.StopListening("Interact", TryGrab);
             EventManager.StopListening("DropBox", DropOnJump);
         }
 
-        private void TryGrab(params object[] list)
+        #endregion
+
+        public void Interact()
         {
-            if (player != null)
-            {
-                player.carryingState.Next();
-                state.Switch(player);
-            }
+            player.carryingState.Next();
+            state.Switch(player);
         }
 
         public void DropOnJump(params object[] list)
@@ -54,6 +53,7 @@ namespace System.Objects
 
             player.SetMaximumSpeed(5f);
             player.carryingState.Next();
+            player.RemoveInteract();
             player = null;
             state.Drop();
         }
@@ -72,6 +72,7 @@ namespace System.Objects
             {
                 player.SetMaximumSpeed(5f);
                 player.carryingState.Next();
+                player.RemoveInteract();
                 player = null;
                 state.Drop();
             }
@@ -98,6 +99,7 @@ namespace System.Objects
             if (other.transform.CompareTag("Player"))
             {
                 player = other.transform.GetComponent<PlayerClass>();
+                player.GiveInteract(this);
             }
         }
     }

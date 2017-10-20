@@ -35,13 +35,13 @@ namespace System.Managers
             commands = new Dictionary<string, Command>
             {
                 {"Jump", jumpCommand},
-                {"Teleport", transgressionCommand}
+                {"Teleport", transgressionCommand},
+                {"Use", interactCommand}
             };
 
             commandsWithoutPlayer = new Dictionary<string, Command>
             {
-                {"Exit", pauseCommand},
-                {"Use", interactCommand}
+                {"Exit", pauseCommand}
             };
         }
 
