@@ -154,14 +154,19 @@ namespace Player.FSM
             switch (owner.gameObject.name == "Player")
             {
                 case true:
-                    EventManager.TriggerEvent("OnViewportGoal", 1f);
+//                    EventManager.TriggerEvent("OnViewportGoal", 1f);
                     EventManager.TriggerEvent("OnShadowSlide", true);
                     break;
                 default:
-                    EventManager.TriggerEvent("OnViewportGoal", 0f);
+//                    EventManager.TriggerEvent("OnViewportGoal", 0f);
                     EventManager.TriggerEvent("OnShadowSlide", false);
                     break;
             }
+        }
+
+        public string CurrentState()
+        {
+            return state.ToString();
         }
     }
 }

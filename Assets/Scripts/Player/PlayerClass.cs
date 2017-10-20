@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
+using Interfaces;
 using JetBrains.Annotations;
 using Player.FSM;
+using Puzzles;
 using UnityEngine;
 
 namespace Player
@@ -27,6 +29,8 @@ namespace Player
         public PlayerStateMachine state;
         public CarryingStateMachine carryingState;
         public TransgressionStateMachine transgressionState;
+
+        private IInteractable interactable;
 
         private void Awake()
         {
@@ -81,13 +85,20 @@ namespace Player
 
         private void LateUpdate()
         {
-            if (Input.GetKeyDown(KeyCode.R))
+            if (Input.GetKeyDown(KeyCode.E))
             {
-                Debug.Log(string.Format("Carrying state for {1} is: {0}", carryingState.Now(), gameObject.name));
+                TryInteract();
             }
             carryingState.Rotate();
             camera.position = Vector3.Lerp(camera.position,
                 new Vector3(transform.position.x, transform.position.y + 3, -7), Time.deltaTime * 4.0f);
+        }
+
+        public void TryInteract()
+        {
+            if (interactable == null) return;
+
+            interactable.Interact();
         }
 
         private void FixedUpdate()
@@ -154,21 +165,13 @@ namespace Player
         {
             if (lookRight && horizontalMoving < 0)
             {
-//                Debug.Log(string.Format("lookRight was for {1} is: {0}", lookRight, gameObject.name));
                 transform.Rotate(0, 180, 0);
-//                otherPlayer.transform.Rotate(0, 180, 0);
-//                otherPlayer.lookRight = !otherPlayer.lookRight;
                 lookRight = !lookRight;
-//                Debug.Log(string.Format("lookRight now for {1} is: {0}", lookRight, gameObject.name));
             }
             else if (!lookRight && horizontalMoving > 0)
             {
-//                Debug.Log(string.Format("lookRight was for {1} is: {0}", lookRight, gameObject.name));
                 transform.Rotate(0, 180, 0);
-//                otherPlayer.transform.Rotate(0, 180, 0);
-//                otherPlayer.lookRight = !otherPlayer.lookRight;
                 lookRight = !lookRight;
-//                Debug.Log(string.Format("lookRight now for {1} is: {0}", lookRight, gameObject.name));
             }
         }
 
@@ -226,8 +229,19 @@ namespace Player
 
         private void OnTransgressionEnd(params object[] list)
         {
+            Debug.Log("End transgression");
             otherPlayer.transgressionState.Next();
             transgressionState.Next();
+        }
+
+        public void GiveInteract(IInteractable obj)
+        {
+            interactable = obj;
+        }
+
+        public void RemoveInteract()
+        {
+            interactable = null;
         }
     }
 }
