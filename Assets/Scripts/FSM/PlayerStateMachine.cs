@@ -168,5 +168,17 @@ namespace Player.FSM
         {
             return state.ToString();
         }
+
+        public void Interact()
+        {
+            switch (state)
+            {
+                case State.Disable:
+                    break;
+                default:
+                    owner.TryInteract();
+                    break;
+            }
+        }
     }
 }

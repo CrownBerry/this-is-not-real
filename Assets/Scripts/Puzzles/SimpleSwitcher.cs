@@ -10,13 +10,16 @@ namespace Puzzles
     {
         public String PuzzleName;
 
-        public SwitcherState state;
-        public bool isPlayerNear;
+        private SwitcherState state;
+        private bool isPlayerNear;
+        private Renderer renderer;
+
 
         private void Awake()
         {
             state = SwitcherState.ClosePosition;
             isPlayerNear = false;
+            renderer = GetComponent<Renderer>();
 
             AddItselfToPuzzle();
         }
@@ -40,9 +43,11 @@ namespace Puzzles
             {
                 case SwitcherState.OpenPosition:
                     state = SwitcherState.ClosePosition;
+                    renderer.material.SetColor("_Color", new Color(0, 180f/255f, 80f/255f));
                     break;
                 case SwitcherState.ClosePosition:
                     state = SwitcherState.OpenPosition;
+                    renderer.material.SetColor("_Color", new Color(180f/255f, 0, 20f/255f));
                     break;
             }
         }
