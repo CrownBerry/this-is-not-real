@@ -10,8 +10,8 @@ namespace Puzzles
 {
     public class SimpleDoorPuzzle : MonoBehaviour, IPuzzle
     {
-        PuzzleState state;
-        IList<ISwitchable> switchers = new List<ISwitchable>();
+        private PuzzleState state;
+        private readonly IList<ISwitchable> switchers = new List<ISwitchable>();
 
         private Vector3 openPosition;
         private Vector3 closePosition;
@@ -67,13 +67,16 @@ namespace Puzzles
         public void Open()
         {
             state = PuzzleState.Solved;
-            Debug.Log(string.Format("Puzzle {0} solved", gameObject.name));
         }
 
         public void Close()
         {
             state = PuzzleState.NotSolved;
-            Debug.Log(string.Format("Puzzle {0} not solved", gameObject.name));
+        }
+
+        public int NeedKey()
+        {
+            return 0;
         }
     }
 }
