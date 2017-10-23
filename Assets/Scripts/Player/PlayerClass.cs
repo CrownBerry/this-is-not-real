@@ -118,7 +118,7 @@ namespace Player
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
-                Debug.Log(string.Format("{1} — {0}", state.CurrentState(), gameObject.name));
+                Debug.Log($"{gameObject.name} — {state.CurrentState()}");
             }
 
 
