@@ -95,9 +95,7 @@ namespace Player
 
         public void TryInteract()
         {
-            if (interactable == null) return;
-
-            interactable.Interact();
+            interactable?.Interact();
         }
 
         private void Update()
@@ -118,9 +116,8 @@ namespace Player
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
-                Debug.Log(string.Format("{1} — {0}", state.CurrentState(), gameObject.name));
+                Debug.Log($"{gameObject.name} — {state.CurrentState()}");
             }
-
 
             otherCollider = null;
             isInside = false;

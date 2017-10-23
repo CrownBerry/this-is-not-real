@@ -30,7 +30,7 @@ namespace Puzzles
             ChangePosition();
             if (!switchers.Any()) return;
 
-            if (switchers.Any(_ => _.IsClose()))
+            if (switchers.Any(_ => _.IsClosed()))
             {
                 if (state == PuzzleState.NotSolved) return;
                 Close();
