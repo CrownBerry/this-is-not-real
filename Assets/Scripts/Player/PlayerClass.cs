@@ -11,7 +11,7 @@ namespace Player
     public class PlayerClass : MonoBehaviour
     {
         private float MaxSpeed = 5.0f;
-        private float JumpSpeed = 6.0f;
+        private float JumpSpeed = 6.5f;
         public float horizontalMoving;
         public bool lookRight;
         private float movingSpeed;
@@ -29,6 +29,9 @@ namespace Player
         public PlayerStateMachine state;
         public CarryingStateMachine carryingState;
         public TransgressionStateMachine transgressionState;
+
+        public string stateName;
+        public float verticalVelocity;
 
         private IInteractable interactable;
 
@@ -92,13 +95,30 @@ namespace Player
 
         public void TryInteract()
         {
-            if (interactable == null) return;
+            interactable?.Interact();
+        }
 
-            interactable.Interact();
+        private void Update()
+        {
+            verticalVelocity = rigidBody.velocity.y;
+            stateName = state.CurrentState();
+            if (rigidBody.velocity.y < -0.1f)
+            {
+                state.Falling();
+            }
+            else
+            {
+                state.StopFalling();
+            }
         }
 
         private void FixedUpdate()
         {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                Debug.Log($"{gameObject.name} — {state.CurrentState()}");
+            }
+
             otherCollider = null;
             isInside = false;
             Move();
@@ -111,7 +131,7 @@ namespace Player
         private void OnCollisionEnter(Collision other)
         {
             var normal = other.contacts[0].normal;
-            if (normal.y < 0f) return;
+            if (normal.y <= 0f) return;
             state.Landing();
         }
 

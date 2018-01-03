@@ -2,6 +2,6 @@
 {
     public interface ISwitchable
     {
-        bool IsClose();
+        bool IsClosed();
     }
 }

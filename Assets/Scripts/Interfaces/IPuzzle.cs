@@ -5,5 +5,6 @@
         void AddToList(ISwitchable switcher);
         void Open();
         void Close();
+        int NeedKey();
     }
 }
