@@ -68,7 +68,7 @@ namespace Puzzles
             }
         }
 
-        public bool IsClose()
+        public bool IsClosed()
         {
             return state == SwitcherState.ClosePosition;
         }

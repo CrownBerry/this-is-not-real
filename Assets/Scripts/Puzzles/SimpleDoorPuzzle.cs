@@ -8,72 +8,78 @@ using UnityEngine.Networking;
 
 namespace Puzzles
 {
-    public class SimpleDoorPuzzle : MonoBehaviour, IPuzzle
-    {
-        PuzzleState state;
-        IList<ISwitchable> switchers = new List<ISwitchable>();
+	public class SimpleDoorPuzzle : MonoBehaviour, IPuzzle
+	{
+		private PuzzleState state;
+		private readonly IList<ISwitchable> switchers = new List<ISwitchable>();
 
-        private Vector3 openPosition;
-        private Vector3 closePosition;
+		private Vector3 openPosition;
+		private Vector3 closePosition;
 
-        void Awake()
-        {
-            state = PuzzleState.NotSolved;
-            closePosition = transform.position;
-            openPosition = new Vector3(transform.position.x,
-                transform.position.y - transform.localScale.y,
-                transform.position.z);
-        }
+		public bool openDirection; //false - down, true - up
 
-        private void Update()
-        {
-            ChangePosition();
-            if (!switchers.Any()) return;
+		void Awake()
+		{
+			state = PuzzleState.NotSolved;
+			closePosition = transform.position;
+			openPosition = new Vector3(transform.position.x,
+			                           transform.position.y - transform.localScale.y +
+			                           2 * Convert.ToInt32(openDirection) * transform.localScale.y,
+			                           transform.position.z);
+		}
 
-            if (switchers.Any(_ => _.IsClose()))
-            {
-                if (state == PuzzleState.NotSolved) return;
-                Close();
-                return;
-            }
+		private void Update()
+		{
+			ChangePosition();
+			if (!switchers.Any()) return;
 
-            if (state == PuzzleState.Solved) return;
+			if (switchers.Any(_ => _.IsClosed()))
+			{
+				if (state == PuzzleState.NotSolved) return;
+				Close();
+				return;
+			}
 
-            Open();
-            state = PuzzleState.Solved;
-        }
+			if (state == PuzzleState.Solved) return;
 
-        private void ChangePosition()
-        {
-            var newPosition = new Vector3();
-            switch (state)
-            {
-                case PuzzleState.Solved:
-                    newPosition = openPosition;
-                    break;
-                case PuzzleState.NotSolved:
-                    newPosition = closePosition;
-                    break;
-            }
+			Open();
+			state = PuzzleState.Solved;
+		}
 
-            transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime);
-        }
+		private void ChangePosition()
+		{
+			var newPosition = new Vector3();
+			switch (state)
+			{
+				case PuzzleState.Solved:
+					newPosition = openPosition;
+					break;
+				case PuzzleState.NotSolved:
+					newPosition = closePosition;
+					break;
+			}
 
-        public void AddToList(ISwitchable switcher)
-        {
-            switchers.Add(switcher);
-        }
+			transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime);
+		}
 
-        public void Open()
-        {
-            state = PuzzleState.Solved;
-            Debug.Log(string.Format("Puzzle {0} solved", gameObject.name));
-        }
+		public void AddToList(ISwitchable switcher)
+		{
+			switchers.Add(switcher);
+		}
 
-        public void Close()
-        {
-            state = PuzzleState.NotSolved;
-            Debug.Log(string.Format("Puzzle {0} not solved", gameObject.name));
-        }
-    }
+		public void Open()
+		{
+			state = PuzzleState.Solved;
+		}
+
+		public void Close()
+		{
+			state = PuzzleState.NotSolved;
+		}
+
+		public int NeedKey()
+		{
+			return 0;
+		}
+	}
 }

@@ -43,15 +43,6 @@ namespace Player.FSM
                 case State.Disable:
                     owner.ChangeHorizontalMove(newDirection);
                     break;
-//                default:
-//                    owner.ChangeHorizontalMove(newDirection);
-//                    if (newDirection == 0)
-//                    {
-//                        state = State.Idle;
-//                        break;
-//                    }
-//                    state = State.Run;
-//                    break;
             }
         }
 
@@ -177,6 +168,30 @@ namespace Player.FSM
                     break;
                 default:
                     owner.TryInteract();
+                    break;
+            }
+        }
+
+        public void Falling()
+        {
+            switch (state)
+            {
+                case State.Disable:
+                    break;
+                default:
+                    state = State.Fall;
+                    break;
+            }
+        }
+
+        public void StopFalling()
+        {
+            switch (state)
+            {
+                case State.Fall:
+                    state = State.Idle;
+                    break;
+                default:
                     break;
             }
         }
