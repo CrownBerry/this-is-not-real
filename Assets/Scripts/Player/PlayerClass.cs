@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Security.Cryptography.X509Certificates;
 using Interfaces;
 using JetBrains.Annotations;
 using Player.FSM;
@@ -8,256 +9,279 @@ using UnityEngine;
 
 namespace Player
 {
-    public class PlayerClass : MonoBehaviour
-    {
-        private float MaxSpeed = 5.0f;
-        private float JumpSpeed = 6.5f;
-        public float horizontalMoving;
-        public bool lookRight;
-        private float movingSpeed;
-        public PlayerClass otherPlayer;
+	public class PlayerClass : MonoBehaviour
+	{
+		private float MaxSpeed = 5.0f;
+		private float JumpSpeed = 6.5f;
+		public float horizontalMoving;
+		public bool lookRight;
+		private float movingSpeed;
+		public PlayerClass otherPlayer;
 
-        public bool isInside;
-        private Collider otherCollider;
+		public bool isInside;
+		private Collider otherCollider;
 
-        private Vector3 constantDeltaPosition;
+		private Vector3 constantDeltaPosition;
 
-        private new CapsuleCollider collider;
-        private new Transform camera;
-        private Rigidbody rigidBody;
-        public PlayerStateMachine.State startingState;
-        public PlayerStateMachine state;
-        public CarryingStateMachine carryingState;
-        public TransgressionStateMachine transgressionState;
+		private new CapsuleCollider collider;
+		private new Transform camera;
+		private Rigidbody rigidBody;
+		public PlayerStateMachine.State startingState;
+		public PlayerStateMachine state;
+		public CarryingStateMachine carryingState;
+		public TransgressionStateMachine transgressionState;
 
-        public string stateName;
-        public float verticalVelocity;
+		public string stateName;
+		public float verticalVelocity;
 
-        private IInteractable interactable;
+		private IInteractable interactable;
 
-        private void Awake()
-        {
-            carryingState = new CarryingStateMachine(this, CarryingStateMachine.State.None);
-            transgressionState = new TransgressionStateMachine(this);
-            state = new PlayerStateMachine(this, startingState);
+		[Header("Camera variables")]
+		public float targetDistanceMin = 1.5f;
+		public float shiftX = 0.3f;
+		public float positionZ = -7f;
+		public float shiftY = 2.5f;
+		public float rotationShiftX = 1.5f;
+		public float rotationStrengthMax = 1f;
+		public float rotationShiftY = 1.6f;
+		public float RotationTimeCoef = 1.6f;
+		public float DistanceCoef = 2f;
 
-            switch (gameObject.name == "Player")
-            {
-                case true:
-                    camera = GameObject.Find("Main Camera").transform;
-                    break;
-                default:
-                    camera = GameObject.Find("Second Camera").transform;
-                    break;
-            }
+		private void Awake()
+		{
+			carryingState = new CarryingStateMachine(this, CarryingStateMachine.State.None);
+			transgressionState = new TransgressionStateMachine(this);
+			state = new PlayerStateMachine(this, startingState);
 
-            collider = GetComponent<CapsuleCollider>();
-            rigidBody = GetComponent<Rigidbody>();
+			switch (gameObject.name == "Player")
+			{
+				case true:
+					camera = GameObject.Find("Main Camera").transform;
+					break;
+				default:
+					camera = GameObject.Find("Second Camera").transform;
+					break;
+			}
 
-            var players = GameObject.FindGameObjectsWithTag("Player");
-            foreach (var player in players)
-            {
-                var playerScript = player.GetComponent<PlayerClass>();
-                if (playerScript.Equals(this)) continue;
+			collider = GetComponent<CapsuleCollider>();
+			rigidBody = GetComponent<Rigidbody>();
 
-                otherPlayer = playerScript;
-            }
+			var players = GameObject.FindGameObjectsWithTag("Player");
+			foreach (var player in players)
+			{
+				var playerScript = player.GetComponent<PlayerClass>();
+				if (playerScript.Equals(this)) continue;
 
-            constantDeltaPosition = transform.position - otherPlayer.transform.position + new Vector3(0f, 0.0001f, 0f);
+				otherPlayer = playerScript;
+			}
 
-            otherCollider = new Collider();
-            lookRight = true;
-            horizontalMoving = 0f;
-            movingSpeed = 5f;
-        }
+			constantDeltaPosition = transform.position - otherPlayer.transform.position + new Vector3(0f, 0.0001f, 0f);
 
-        private void OnEnable()
-        {
-            EventManager.StartListening("EndTransgression", OnTransgressionEnd);
-        }
+			otherCollider = new Collider();
+			lookRight = true;
+			horizontalMoving = 0f;
+			movingSpeed = 5f;
+		}
 
-        private void OnDisable()
-        {
-            EventManager.StopListening("EndTransgression", OnTransgressionEnd);
-        }
+		private void OnEnable()
+		{
+			EventManager.StartListening("EndTransgression", OnTransgressionEnd);
+		}
 
-        private void OnDestroy()
-        {
-            EventManager.StopListening("EndTransgression", OnTransgressionEnd);
-        }
+		private void OnDisable()
+		{
+			EventManager.StopListening("EndTransgression", OnTransgressionEnd);
+		}
 
-        private void LateUpdate()
-        {
-            carryingState.Rotate();
-            camera.position = Vector3.Lerp(camera.position,
-                new Vector3(transform.position.x, transform.position.y + 3, -7), Time.deltaTime * 4.0f);
-        }
+		private void OnDestroy()
+		{
+			EventManager.StopListening("EndTransgression", OnTransgressionEnd);
+		}
 
-        public void TryInteract()
-        {
-            interactable?.Interact();
-        }
+		private void LateUpdate()
+		{
+			carryingState.Rotate();
+			var targetDistance = Mathf.Max(Vector3.Distance(transform.position, camera.position) * DistanceCoef, targetDistanceMin);
+			camera.position = Vector3.Lerp(camera.position,
+			                               new Vector3(transform.position.x - shiftX + 2 * Convert.ToInt32(lookRight) * shiftX,
+			                                           camera.position.y, positionZ), Time.deltaTime * targetDistance);
+			camera.position = Vector3.Lerp(camera.position,
+			                               new Vector3(camera.position.x,
+			                                           transform.position.y + shiftY, positionZ), Time.deltaTime * 10.0f);
+			var targetRotate = Quaternion.LookRotation(
+				new Vector3(camera.position.x - rotationShiftX + 2 * Convert.ToInt32(lookRight) * rotationShiftX,
+				            transform.position.y + rotationShiftY, transform.position.z
+				) - camera.position
+			);
+			var rotationStrength = Mathf.Min(RotationTimeCoef * Time.deltaTime, rotationStrengthMax);
+			camera.rotation = Quaternion.Lerp(camera.rotation, targetRotate, rotationStrength);
+		}
 
-        private void Update()
-        {
-            verticalVelocity = rigidBody.velocity.y;
-            stateName = state.CurrentState();
-            if (rigidBody.velocity.y < -0.1f)
-            {
-                state.Falling();
-            }
-            else
-            {
-                state.StopFalling();
-            }
-        }
+		public void TryInteract()
+		{
+			interactable?.Interact();
+		}
 
-        private void FixedUpdate()
-        {
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                Debug.Log($"{gameObject.name} — {state.CurrentState()}");
-            }
+		private void Update()
+		{
+			verticalVelocity = rigidBody.velocity.y;
+			stateName = state.CurrentState();
+			if (rigidBody.velocity.y < -0.1f)
+			{
+				state.Falling();
+			}
+			else
+			{
+				state.StopFalling();
+			}
+		}
 
-            otherCollider = null;
-            isInside = false;
-            Move();
-            if (otherPlayer != null)
-            {
-                otherPlayer.state.MoveDisabled();
-            }
-        }
+		private void FixedUpdate()
+		{
+			if (Input.GetKeyDown(KeyCode.R))
+			{
+				Debug.Log($"{gameObject.name} — {state.CurrentState()}");
+			}
 
-        private void OnCollisionEnter(Collision other)
-        {
-            var normal = other.contacts[0].normal;
-            if (normal.y <= 0f) return;
-            state.Landing();
-        }
+			otherCollider = null;
+			isInside = false;
+			Move();
+			if (otherPlayer != null)
+			{
+				otherPlayer.state.MoveDisabled();
+			}
+		}
 
-        private void OnTriggerStay(Collider other)
-        {
-            otherCollider = other;
-            isInside = true;
-            StartCoroutine("WaitingFixedUpdate");
-        }
+		private void OnCollisionEnter(Collision other)
+		{
+			var normal = other.contacts[0].normal;
+			if (normal.y <= 0f) return;
+			state.Landing();
+		}
 
-        private IEnumerator WaitingFixedUpdate()
-        {
-            yield return new WaitForFixedUpdate();
-        }
+		private void OnTriggerStay(Collider other)
+		{
+			otherCollider = other;
+			isInside = true;
+			StartCoroutine("WaitingFixedUpdate");
+		}
 
-        private void OnTriggerEnter(Collider other)
-        {
-            otherCollider = other;
-            isInside = true;
-        }
+		private IEnumerator WaitingFixedUpdate()
+		{
+			yield return new WaitForFixedUpdate();
+		}
 
-        private void OnTriggerExit(Collider other)
-        {
-            otherCollider = null;
-            isInside = false;
-        }
+		private void OnTriggerEnter(Collider other)
+		{
+			otherCollider = other;
+			isInside = true;
+		}
 
-        [CanBeNull]
-        public Collider IsInside()
-        {
-            return otherCollider;
-        }
+		private void OnTriggerExit(Collider other)
+		{
+			otherCollider = null;
+			isInside = false;
+		}
 
-        #region Moving
+		[CanBeNull]
+		public Collider IsInside()
+		{
+			return otherCollider;
+		}
 
-        public void ChangeHorizontalMove(float newMove)
-        {
-            horizontalMoving = newMove;
-        }
+		#region Moving
 
-        public void Jump()
-        {
-            rigidBody.velocity = new Vector3(rigidBody.velocity.x, JumpSpeed, 0);
-        }
+		public void ChangeHorizontalMove(float newMove)
+		{
+			horizontalMoving = newMove;
+		}
 
-        public void RotatePlayer()
-        {
-            if (lookRight && horizontalMoving < 0)
-            {
-                transform.Rotate(0, 180, 0);
-                lookRight = !lookRight;
-            }
-            else if (!lookRight && horizontalMoving > 0)
-            {
-                transform.Rotate(0, 180, 0);
-                lookRight = !lookRight;
-            }
-        }
+		public void Jump()
+		{
+			rigidBody.velocity = new Vector3(rigidBody.velocity.x, JumpSpeed, 0);
+		}
 
-        private void Move()
-        {
-            var currentVelocity = rigidBody.velocity.x;
-            var currentVerticalVelocity = rigidBody.velocity.y;
+		public void RotatePlayer()
+		{
+			if (lookRight && horizontalMoving < 0)
+			{
+				transform.Rotate(0, 180, 0);
+				lookRight = !lookRight;
+			}
+			else if (!lookRight && horizontalMoving > 0)
+			{
+				transform.Rotate(0, 180, 0);
+				lookRight = !lookRight;
+			}
+		}
 
-            if (MaxSpeed - Math.Abs(currentVelocity) > 2.0f)
-                rigidBody.AddForce(new Vector3(horizontalMoving * movingSpeed, 0f, 0f));
+		private void Move()
+		{
+			var currentVelocity = rigidBody.velocity.x;
+			var currentVerticalVelocity = rigidBody.velocity.y;
 
-            if (Math.Abs(currentVelocity) > float.Epsilon && Math.Abs(horizontalMoving) < float.Epsilon)
-                if (currentVelocity > 0)
-                {
-                    if (currentVelocity < 1)
-                        rigidBody.velocity = new Vector3(0f, rigidBody.velocity.y, 0f);
-                    else
-                        rigidBody.AddForce(new Vector3(-movingSpeed * 2f, 0f, 0f));
-                }
-                else
-                {
-                    if (currentVelocity > -1)
-                        rigidBody.velocity = new Vector3(0f, rigidBody.velocity.y, 0f);
-                    else
-                        rigidBody.AddForce(new Vector3(movingSpeed * 2f, 0f, 0f));
-                }
-            if (Math.Abs(currentVelocity) > float.Epsilon && Math.Abs(horizontalMoving) > float.Epsilon)
-                rigidBody.velocity = horizontalMoving > 0
-                    ? new Vector3(MaxSpeed, currentVerticalVelocity, 0f)
-                    : new Vector3(-MaxSpeed, currentVerticalVelocity, 0f);
-        }
+			if (MaxSpeed - Math.Abs(currentVelocity) > 2.0f)
+				rigidBody.AddForce(new Vector3(horizontalMoving * movingSpeed, 0f, 0f));
 
-        #endregion Moving
+			if (Math.Abs(currentVelocity) > float.Epsilon && Math.Abs(horizontalMoving) < float.Epsilon)
+				if (currentVelocity > 0)
+				{
+					if (currentVelocity < 1)
+						rigidBody.velocity = new Vector3(0f, rigidBody.velocity.y, 0f);
+					else
+						rigidBody.AddForce(new Vector3(-movingSpeed * 2f, 0f, 0f));
+				}
+				else
+				{
+					if (currentVelocity > -1)
+						rigidBody.velocity = new Vector3(0f, rigidBody.velocity.y, 0f);
+					else
+						rigidBody.AddForce(new Vector3(movingSpeed * 2f, 0f, 0f));
+				}
+			if (Math.Abs(currentVelocity) > float.Epsilon && Math.Abs(horizontalMoving) > float.Epsilon)
+				rigidBody.velocity = horizontalMoving > 0
+					                     ? new Vector3(MaxSpeed, currentVerticalVelocity, 0f)
+					                     : new Vector3(-MaxSpeed, currentVerticalVelocity, 0f);
+		}
 
-        public void MoveDisabled()
-        {
-            transform.position = otherPlayer.transform.position + constantDeltaPosition;
-        }
+		#endregion Moving
 
-        public void CameraFollowMe()
-        {
-            camera.position = new Vector3(transform.position.x, transform.position.y + 3, -7);
-        }
+		public void MoveDisabled()
+		{
+			transform.position = otherPlayer.transform.position + constantDeltaPosition;
+		}
 
-        public void Turn(bool turnOn)
-        {
-            rigidBody.isKinematic = !turnOn;
-            collider.isTrigger = !turnOn;
-        }
+		public void CameraFollowMe()
+		{
+			camera.position = new Vector3(transform.position.x, transform.position.y + 3, -7);
+		}
 
-        public void SetMaximumSpeed(float newMax)
-        {
-            MaxSpeed = newMax;
-        }
+		public void Turn(bool turnOn)
+		{
+			rigidBody.isKinematic = !turnOn;
+			collider.isTrigger = !turnOn;
+		}
 
-        private void OnTransgressionEnd(params object[] list)
-        {
-            Debug.Log("End transgression");
-            otherPlayer.transgressionState.Next();
-            transgressionState.Next();
-        }
+		public void SetMaximumSpeed(float newMax)
+		{
+			MaxSpeed = newMax;
+		}
 
-        public void GiveInteract(IInteractable obj)
-        {
-            interactable = obj;
-        }
+		private void OnTransgressionEnd(params object[] list)
+		{
+			Debug.Log("End transgression");
+			otherPlayer.transgressionState.Next();
+			transgressionState.Next();
+		}
 
-        public void RemoveInteract()
-        {
-            interactable = null;
-        }
-    }
+		public void GiveInteract(IInteractable obj)
+		{
+			interactable = obj;
+		}
+
+		public void RemoveInteract()
+		{
+			interactable = null;
+		}
+	}
 }
