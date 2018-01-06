@@ -142,6 +142,7 @@ namespace Player.FSM
 
         private void ShiftCameraView()
         {
+            Debug.Log("Start shift camera");
             switch (owner.gameObject.name == "Player")
             {
                 case true:
