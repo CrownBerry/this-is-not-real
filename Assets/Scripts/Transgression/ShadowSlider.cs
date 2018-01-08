@@ -1,8 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Transgression
 {
+    public enum SliderState
+    {
+        Idle,
+        Sliding
+    }
+
     public class ShadowSlider : MonoBehaviour
     {
         private float goal;
@@ -13,7 +20,9 @@ namespace Transgression
         private float realHeight;
 
         private float summary;
-        private RectTransform transform;
+        private RectTransform rectTransform;
+
+        private SliderState state;
 
         private void Awake()
         {
@@ -26,12 +35,14 @@ namespace Transgression
             min = -250f;
             max = realHeight + 250f;
 
-            transform = GetComponent<RectTransform>();
+            rectTransform = GetComponent<RectTransform>();
             goal = min;
-            transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
+            rectTransform.anchoredPosition3D = new Vector3(rectTransform.anchoredPosition3D.x,
                 goal,
-                transform.anchoredPosition3D.z);
+                rectTransform.anchoredPosition3D.z);
             summary = 0f;
+
+            state = SliderState.Idle;
         }
 
         private void OnEnable()
@@ -51,18 +62,26 @@ namespace Transgression
 
         private void Update()
         {
-            var yPosition = transform.anchoredPosition3D.y;
+            var yPosition = rectTransform.anchoredPosition3D.y;
 
             if (yPosition < goal)
             {
-                if (Mathf.Abs(yPosition - minStart) < 20)
+                if (Mathf.Abs(yPosition - minStart) < 20
+                    && state == SliderState.Idle)
+                {
                     EventManager.TriggerEvent("OnViewportGoal", 1f);
+                    state = SliderState.Sliding;
+                }
                 Slide(1);
             }
             else if (goal < yPosition)
             {
-                if (Mathf.Abs(yPosition - maxStart) < 20)
+                if (Mathf.Abs(yPosition - maxStart) < 20
+                    && state == SliderState.Idle)
+                {
                     EventManager.TriggerEvent("OnViewportGoal", 0f);
+                    state = SliderState.Sliding;
+                }
                 Slide(-1);
             }
         }
@@ -71,21 +90,23 @@ namespace Transgression
         {
             var direction = (bool) list[0];
             goal = direction ? max : min;
+            var viewportGoal = Math.Abs(goal - max) < float.Epsilon ? 1f : 0f;
         }
 
         private void Slide(int direction)
         {
             var step = Time.deltaTime * (maxStart - minStart) * 2.5f;
-            transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
-                transform.anchoredPosition3D.y + direction * step,
-                transform.anchoredPosition3D.z);
+            rectTransform.anchoredPosition3D = new Vector3(rectTransform.anchoredPosition3D.x,
+                rectTransform.anchoredPosition3D.y + direction * step,
+                rectTransform.anchoredPosition3D.z);
 
-            if (Mathf.Abs(goal - transform.anchoredPosition3D.y) < step)
+            if (Mathf.Abs(goal - rectTransform.anchoredPosition3D.y) < step)
             {
-                transform.anchoredPosition3D = new Vector3(transform.anchoredPosition3D.x,
+                rectTransform.anchoredPosition3D = new Vector3(rectTransform.anchoredPosition3D.x,
                     goal,
-                    transform.anchoredPosition3D.z);
+                    rectTransform.anchoredPosition3D.z);
                 EventManager.TriggerEvent("EndTransgression");
+                state = SliderState.Idle;
             }
 //            }
         }
