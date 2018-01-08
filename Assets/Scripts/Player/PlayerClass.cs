@@ -38,6 +38,7 @@ namespace Player
 
 		[Header("Camera variables")]
 		public float targetDistanceMin = 1.5f;
+
 		public float shiftX = 0.3f;
 		public float positionZ = -7f;
 		public float shiftY = 2.5f;
@@ -101,7 +102,8 @@ namespace Player
 		private void LateUpdate()
 		{
 			carryingState.Rotate();
-			var targetDistance = Mathf.Max(Vector3.Distance(transform.position, camera.position) * DistanceCoef, targetDistanceMin);
+			var targetDistance =
+				Mathf.Max(Vector3.Distance(transform.position, camera.position) * DistanceCoef, targetDistanceMin);
 			camera.position = Vector3.Lerp(camera.position,
 			                               new Vector3(transform.position.x - shiftX + 2 * Convert.ToInt32(lookRight) * shiftX,
 			                                           camera.position.y, positionZ), Time.deltaTime * targetDistance);
@@ -260,6 +262,8 @@ namespace Player
 		{
 			rigidBody.isKinematic = !turnOn;
 			collider.isTrigger = !turnOn;
+			if (!rigidBody.isKinematic)
+				rigidBody.velocity = otherPlayer.rigidBody.velocity;
 		}
 
 		public void SetMaximumSpeed(float newMax)
