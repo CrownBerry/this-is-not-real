@@ -254,15 +254,14 @@ namespace Player
 
 		public void LaunchTurn(bool turnOn)
 		{
-			var savedSpeed = otherPlayer.rigidBody.velocity;
-			StartCoroutine(Turn(turnOn, savedSpeed));
+			StartCoroutine(Turn(turnOn));
 //			Invoke("invokedTurn",1);
 		}
 
-		private IEnumerator Turn(bool turnOn, Vector3 savedSpeed)
+		private IEnumerator Turn(bool turnOn)
 		{
-
-			yield return new WaitForSecondsRealtime(1f);
+			yield return new WaitForSecondsRealtime(0.3f);
+			var savedSpeed = otherPlayer.rigidBody.velocity;
 			rigidBody.isKinematic = !turnOn;
 			collider.isTrigger = !turnOn;
 			Debug.Log($"Now isKinematik: '{rigidBody.isKinematic}'");
