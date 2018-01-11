@@ -129,13 +129,24 @@ namespace Player.FSM
             switch (state)
             {
                 case State.Disable:
+                    owner.LaunchTurn(true);
+                    break;
+                default:
+                    owner.LaunchTurn(false);
+                    ShiftCameraView();
+                    break;
+            }
+        }
+
+        public void EndTransgression()
+        {
+            switch (state)
+            {
+                case State.Disable:
                     state = State.Idle;
-                    owner.Turn(true);
                     break;
                 default:
                     state = State.Disable;
-                    owner.Turn(false);
-                    ShiftCameraView();
                     break;
             }
         }

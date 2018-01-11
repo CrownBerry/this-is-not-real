@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections;
-using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Interfaces;
 using JetBrains.Annotations;
 using Player.FSM;
-using Puzzles;
 using UnityEngine;
 
 namespace Player
@@ -253,17 +252,32 @@ namespace Player
 			transform.position = otherPlayer.transform.position + constantDeltaPosition;
 		}
 
-		public void CameraFollowMe()
+		public void LaunchTurn(bool turnOn)
 		{
-			camera.position = new Vector3(transform.position.x, transform.position.y + 3, -7);
+			var savedSpeed = otherPlayer.rigidBody.velocity;
+			StartCoroutine(Turn(turnOn, savedSpeed));
+//			Invoke("invokedTurn",1);
 		}
 
-		public void Turn(bool turnOn)
+		private IEnumerator Turn(bool turnOn, Vector3 savedSpeed)
+		{
+
+			yield return new WaitForSecondsRealtime(1f);
+			rigidBody.isKinematic = !turnOn;
+			collider.isTrigger = !turnOn;
+			Debug.Log($"Now isKinematik: '{rigidBody.isKinematic}'");
+			if (!rigidBody.isKinematic)
+				rigidBody.velocity = savedSpeed;
+			state.EndTransgression();
+		}
+
+		private void invokedTurn(bool turnOn, Vector3 savedSpeed)
 		{
 			rigidBody.isKinematic = !turnOn;
 			collider.isTrigger = !turnOn;
+			Debug.Log($"Now isKinematik: '{rigidBody.isKinematic}'");
 			if (!rigidBody.isKinematic)
-				rigidBody.velocity = otherPlayer.rigidBody.velocity;
+				rigidBody.velocity = savedSpeed;
 		}
 
 		public void SetMaximumSpeed(float newMax)
