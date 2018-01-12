@@ -129,10 +129,10 @@ namespace Player.FSM
             switch (state)
             {
                 case State.Disable:
-                    owner.LaunchTurn(true);
+                    owner.StartSwitchingRigidbodyState(true);
                     break;
                 default:
-                    owner.LaunchTurn(false);
+                    owner.StartSwitchingRigidbodyState(false);
                     ShiftCameraView();
                     break;
             }
