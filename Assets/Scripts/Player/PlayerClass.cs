@@ -46,56 +46,14 @@ namespace Player
 		private GameObject[] players;
 		private Rigidbody rigidBody;
 
+		#region Unity Functions
+
 		private void Awake()
 		{
 			Init();
 			FindObjects();
 			CollectingComponents();
 			InitConstatDeltaPosition();
-		}
-
-		private void Init()
-		{
-			carryingState = new CarryingStateMachine(this, CarryingStateMachine.State.None);
-			transgressionState = new TransgressionStateMachine(this);
-			state = new PlayerStateMachine(this, startingState);
-
-			otherCollider = new Collider();
-			lookRight = true;
-			horizontalMoving = 0f;
-			movingSpeed = 5f;
-		}
-
-		private void FindObjects()
-		{
-			switch (gameObject.name == "Player")
-			{
-				case true:
-					camera = GameObject.Find("Main Camera").transform;
-					break;
-				default:
-					camera = GameObject.Find("Second Camera").transform;
-					break;
-			}
-			players = GameObject.FindGameObjectsWithTag("Player");
-		}
-
-		private void CollectingComponents()
-		{
-			collider = GetComponent<CapsuleCollider>();
-			rigidBody = GetComponent<Rigidbody>();
-			foreach (var player in players)
-			{
-				var playerScript = player.GetComponent<PlayerClass>();
-				if (playerScript.Equals(this)) continue;
-
-				otherPlayer = playerScript;
-			}
-		}
-
-		private void InitConstatDeltaPosition()
-		{
-			constantDeltaPosition = transform.position - otherPlayer.transform.position + new Vector3(0f, 0.0001f, 0f);
 		}
 
 		private void OnEnable()
@@ -141,25 +99,6 @@ namespace Player
 			CameraMoving();
 		}
 
-		private void CameraMoving()
-		{
-			var targetDistance =
-				Mathf.Max(Vector3.Distance(transform.position, camera.position) * DistanceCoef, targetDistanceMin);
-			camera.position = Vector3.Lerp(camera.position,
-			                               new Vector3(transform.position.x - shiftX + 2 * Convert.ToInt32(lookRight) * shiftX,
-			                                           camera.position.y, positionZ), Time.deltaTime * targetDistance);
-			camera.position = Vector3.Lerp(camera.position,
-			                               new Vector3(camera.position.x,
-			                                           transform.position.y + shiftY, positionZ), Time.deltaTime * 10.0f);
-			var targetRotate = Quaternion.LookRotation(
-				new Vector3(camera.position.x - rotationShiftX + 2 * Convert.ToInt32(lookRight) * rotationShiftX,
-				            transform.position.y + rotationShiftY, transform.position.z
-				) - camera.position
-			);
-			var rotationStrength = Mathf.Min(RotationTimeCoef * Time.deltaTime, rotationStrengthMax);
-			camera.rotation = Quaternion.Lerp(camera.rotation, targetRotate, rotationStrength);
-		}
-
 		public void TryInteract()
 		{
 			interactable?.Interact();
@@ -179,11 +118,6 @@ namespace Player
 			StartCoroutine("WaitingFixedUpdate");
 		}
 
-		private IEnumerator WaitingFixedUpdate()
-		{
-			yield return new WaitForFixedUpdate();
-		}
-
 		private void OnTriggerEnter(Collider other)
 		{
 			otherCollider = other;
@@ -196,35 +130,50 @@ namespace Player
 			isInside = false;
 		}
 
-		[CanBeNull]
-		public Collider IsInside()
+		#endregion
+
+		private void Init()
 		{
-			return otherCollider;
+			carryingState = new CarryingStateMachine(this, CarryingStateMachine.State.None);
+			transgressionState = new TransgressionStateMachine(this);
+			state = new PlayerStateMachine(this, startingState);
+
+			otherCollider = new Collider();
+			lookRight = true;
+			horizontalMoving = 0f;
+			movingSpeed = 5f;
 		}
 
-		public void MoveDisabled()
+		private void FindObjects()
 		{
-			transform.position = otherPlayer.transform.position + constantDeltaPosition;
+			switch (gameObject.name == "Player")
+			{
+				case true:
+					camera = GameObject.Find("Main Camera").transform;
+					break;
+				default:
+					camera = GameObject.Find("Second Camera").transform;
+					break;
+			}
+			players = GameObject.FindGameObjectsWithTag("Player");
 		}
 
-		public void StartSwitchingRigidbodyState(bool turnOn)
+		private void CollectingComponents()
 		{
-			StartCoroutine(SwitchRigidbodyState(turnOn));
+			collider = GetComponent<CapsuleCollider>();
+			rigidBody = GetComponent<Rigidbody>();
+			foreach (var player in players)
+			{
+				var playerScript = player.GetComponent<PlayerClass>();
+				if (playerScript.Equals(this)) continue;
+
+				otherPlayer = playerScript;
+			}
 		}
 
-		private IEnumerator SwitchRigidbodyState(bool turnOn)
+		private void InitConstatDeltaPosition()
 		{
-			yield return new WaitForSecondsRealtime(0.3f);
-			rigidBody.isKinematic = !turnOn;
-			collider.isTrigger = !turnOn;
-			if (!rigidBody.isKinematic)
-				rigidBody.velocity = otherPlayer.rigidBody.velocity;
-			state.EndTransgression();
-		}
-
-		public void SetMaximumSpeed(float newMax)
-		{
-			MaxSpeed = newMax;
+			constantDeltaPosition = transform.position - otherPlayer.transform.position + new Vector3(0f, 0.0001f, 0f);
 		}
 
 		private void OnTransgressionEnd(params object[] list)
@@ -232,42 +181,6 @@ namespace Player
 			Debug.Log("End transgression");
 			otherPlayer.transgressionState.Next();
 			transgressionState.Next();
-		}
-
-		public void GiveInteract(IInteractable obj)
-		{
-			interactable = obj;
-		}
-
-		public void RemoveInteract()
-		{
-			interactable = null;
-		}
-
-		#region Moving
-
-		public void ChangeHorizontalMove(float newMove)
-		{
-			horizontalMoving = newMove;
-		}
-
-		public void Jump()
-		{
-			rigidBody.velocity = new Vector3(rigidBody.velocity.x, JumpSpeed, 0);
-		}
-
-		public void RotatePlayer()
-		{
-			if (lookRight && horizontalMoving < 0)
-			{
-				transform.Rotate(0, 180, 0);
-				lookRight = !lookRight;
-			}
-			else if (!lookRight && horizontalMoving > 0)
-			{
-				transform.Rotate(0, 180, 0);
-				lookRight = !lookRight;
-			}
 		}
 
 		private void Move()
@@ -299,6 +212,93 @@ namespace Player
 					                     : new Vector3(-MaxSpeed, currentVerticalVelocity, 0f);
 		}
 
-		#endregion Moving
+		public void MoveDisabled()
+		{
+			transform.position = otherPlayer.transform.position + constantDeltaPosition;
+		}
+
+		private void CameraMoving()
+		{
+			var targetDistance =
+				Mathf.Max(Vector3.Distance(transform.position, camera.position) * DistanceCoef, targetDistanceMin);
+			camera.position = Vector3.Lerp(camera.position,
+			                               new Vector3(transform.position.x - shiftX + 2 * Convert.ToInt32(lookRight) * shiftX,
+			                                           camera.position.y, positionZ), Time.deltaTime * targetDistance);
+			camera.position = Vector3.Lerp(camera.position,
+			                               new Vector3(camera.position.x,
+			                                           transform.position.y + shiftY, positionZ), Time.deltaTime * 10.0f);
+			var targetRotate = Quaternion.LookRotation(
+				new Vector3(camera.position.x - rotationShiftX + 2 * Convert.ToInt32(lookRight) * rotationShiftX,
+				            transform.position.y + rotationShiftY, transform.position.z
+				) - camera.position
+			);
+			var rotationStrength = Mathf.Min(RotationTimeCoef * Time.deltaTime, rotationStrengthMax);
+			camera.rotation = Quaternion.Lerp(camera.rotation, targetRotate, rotationStrength);
+		}
+
+		private IEnumerator WaitingFixedUpdate()
+		{
+			yield return new WaitForFixedUpdate();
+		}
+
+		public void StartSwitchingRigidbodyState(bool turnOn)
+		{
+			StartCoroutine(SwitchRigidbodyState(turnOn));
+		}
+
+		private IEnumerator SwitchRigidbodyState(bool turnOn)
+		{
+			yield return new WaitForSecondsRealtime(0.3f);
+			rigidBody.isKinematic = !turnOn;
+			collider.isTrigger = !turnOn;
+			if (!rigidBody.isKinematic)
+				rigidBody.velocity = otherPlayer.rigidBody.velocity;
+			state.EndTransgression();
+		}
+
+		[CanBeNull]
+		public Collider IsInside()
+		{
+			return otherCollider;
+		}
+
+		public void SetMaximumSpeed(float newMax)
+		{
+			MaxSpeed = newMax;
+		}
+
+		public void GiveInteract(IInteractable obj)
+		{
+			interactable = obj;
+		}
+
+		public void RemoveInteract()
+		{
+			interactable = null;
+		}
+
+		public void ChangeHorizontalMove(float newMove)
+		{
+			horizontalMoving = newMove;
+		}
+
+		public void Jump()
+		{
+			rigidBody.velocity = new Vector3(rigidBody.velocity.x, JumpSpeed, 0);
+		}
+
+		public void RotatePlayer()
+		{
+			if (lookRight && horizontalMoving < 0)
+			{
+				transform.Rotate(0, 180, 0);
+				lookRight = !lookRight;
+			}
+			else if (!lookRight && horizontalMoving > 0)
+			{
+				transform.Rotate(0, 180, 0);
+				lookRight = !lookRight;
+			}
+		}
 	}
 }
