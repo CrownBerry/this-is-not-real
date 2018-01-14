@@ -121,6 +121,7 @@ namespace Player.FSM
                 Debug.Log(who);
                 Debug.Log(collider.transform.position);
                 Debug.DrawLine(owner.transform.position, collider.transform.position);
+                owner.FailTransgression();
                 return;
             }
 

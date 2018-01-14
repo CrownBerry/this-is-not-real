@@ -45,6 +45,7 @@ namespace Player
 		private Collider otherCollider;
 		private GameObject[] players;
 		private Rigidbody rigidBody;
+		private ParticleSystem failTransgressionParticle;
 
 		#region Unity Functions
 
@@ -104,6 +105,11 @@ namespace Player
 			interactable?.Interact();
 		}
 
+		public void FailTransgression()
+		{
+			failTransgressionParticle.Play();
+		}
+
 		private void OnCollisionEnter(Collision other)
 		{
 			var normal = other.contacts[0].normal;
@@ -156,6 +162,8 @@ namespace Player
 					break;
 			}
 			players = GameObject.FindGameObjectsWithTag("Player");
+			failTransgressionParticle = GetComponentInChildren<ParticleSystem>();
+			failTransgressionParticle.Stop();
 		}
 
 		private void CollectingComponents()
